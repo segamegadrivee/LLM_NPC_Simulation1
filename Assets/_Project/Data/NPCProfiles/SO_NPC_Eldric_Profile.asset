@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 955b1c9cb799f4eeab8502ea369ab058, type: 3}
+  m_Name: SO_NPC_Eldric_Profile
+  m_EditorClassIdentifier: Assembly-CSharp::NPCProfile
+  npcId: eldric
+  npcName: Eldric
+  role: Village elder
+  personality: Calm, cautious, responsible, protective of the village.
+  backstory: Eldric has led the village for many years. He knows its people, traditions,
+    conflicts, and important decisions.
+  speakingStyle: Short, serious, grounded, slightly cautious.
+  knowledgeTags:
+  - village
+  - order
+  - leadership
+  - bell
+  - people
+  - tradition
+  knownFacts:
+  - The old church bell was used to gather villagers and warn them of danger.
+  - The missing bell can damage trust and create fear.
+  - Mira often hears rumors before anyone else.
+  - Borin can inspect metal traces and tools.
+  - Anselm understands the symbolic meaning of the bell.
+  relationships:
+  - Trusts Borin with practical inspections.
+  - Believes Mira knows the social mood of the village.
+  - Respects Anselm as a keeper of traditions.

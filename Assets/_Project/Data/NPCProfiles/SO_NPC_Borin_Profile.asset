@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 955b1c9cb799f4eeab8502ea369ab058, type: 3}
+  m_Name: SO_NPC_Borin_Profile
+  m_EditorClassIdentifier: Assembly-CSharp::NPCProfile
+  npcId: borin
+  npcName: Borin
+  role: Blacksmith
+  personality: Direct, practical, hardworking, skeptical of rumors.
+  backstory: Borin works with metal, tools, locks, bells, and repairs. He understands
+    physical evidence better than gossip.
+  speakingStyle: Blunt, short, practical.
+  knowledgeTags:
+  - blacksmith
+  - metal
+  - tools
+  - bell
+  - repair
+  - evidence
+  knownFacts:
+  - A church bell is heavy and difficult to move quietly.
+  - Moving the bell would require tools, a cart, or more than one person.
+  - Rumors are useless without evidence.
+  - Eldric often asks Borin to verify physical objects.
+  relationships:
+  - Respects Eldric but dislikes panic.
+  - Does not fully trust tavern rumors.
+  - Thinks Mira talks too much but sometimes hears useful things.

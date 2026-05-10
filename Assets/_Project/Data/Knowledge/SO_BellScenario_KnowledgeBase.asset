@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09c965f81bcf24840bacc8833d8d8e42, type: 3}
+  m_Name: SO_BellScenario_KnowledgeBase
+  m_EditorClassIdentifier: Assembly-CSharp::KnowledgeBase
+  entries:
+  - id: church_bell_history
+    title: History of the church bell
+    text: The old church bell was used for generations to gather villagers and warn
+      them during danger. Many villagers see it as a symbol of protection and unity.
+    tags:
+    - church
+    - bell
+    - history
+    - tradition
+    relatedObjectIds:
+    - church
+    knownByNpcIds:
+    - eldric
+    - anselm
+    importance: 3
+  - id: mira_saw_stranger
+    title: Mira saw a stranger
+    text: Mira noticed a nervous stranger in the tavern last night. He avoided long
+      conversations and asked when the church square becomes empty.
+    tags:
+    - tavern
+    - stranger
+    - rumors
+    - bell
+    relatedObjectIds:
+    - tavern
+    - church
+    knownByNpcIds:
+    - mira
+    importance: 3
+  - id: borin_bell_metal
+    title: Borin understands the bell as metalwork
+    text: Borin knows that a church bell is heavy and difficult to move quietly.
+      Moving it would require tools, a cart, or several people.
+    tags:
+    - blacksmith
+    - metal
+    - tools
+    - bell
+    - evidence
+    relatedObjectIds:
+    - blacksmith_area
+    - church
+    knownByNpcIds:
+    - borin
+    importance: 3
+  - id: eldric_public_order
+    title: Eldric worries about public order
+    text: Eldric worries that the missing bell may cause fear and distrust in the
+      village because the bell was used as a public warning signal.
+    tags:
+    - village
+    - order
+    - bell
+    - leadership
+    relatedObjectIds:
+    - village_square
+    - church
+    knownByNpcIds:
+    - eldric
+    importance: 3
+  - id: anselm_symbolic_meaning
+    title: Anselm sees the bell as a symbol
+    text: Anselm believes the bell is not just a tool but a symbol of memory, protection,
+      and continuity for the village.
+    tags:
+    - church
+    - bell
+    - tradition
+    - memory
+    relatedObjectIds:
+    - church
+    knownByNpcIds:
+    - anselm
+    importance: 3
+  - id: road_cart_possibility
+    title: A cart may have been used
+    text: If the bell was taken from the church, it was likely moved by cart or by
+      several people through the village road.
+    tags:
+    - road
+    - cart
+    - bell
+    - evidence
+    relatedObjectIds:
+    - village_road
+    - church
+    knownByNpcIds:
+    - borin
+    - eldric
+    importance: 2
