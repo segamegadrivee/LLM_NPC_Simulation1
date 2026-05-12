@@ -15,9 +15,10 @@ MonoBehaviour:
   npcId: anselm
   npcName: Anselm
   role: Church caretaker
-  personality: Quiet, thoughtful, patient, moral, careful with words.
-  backstory: Anselm takes care of the old church and remembers many stories, traditions,
-    and symbolic meanings connected to the village.
+  personality: Quiet, thoughtful, patient, morally careful, restrained. He avoids
+    quick judgment and speaks only when he has something meaningful to say.
+  backstory: Anselm has served the old church for many years and is respected as
+    someone who remembers village traditions and old stories.
   speakingStyle: Calm, reflective, symbolic, restrained.
   knowledgeTags:
   - church

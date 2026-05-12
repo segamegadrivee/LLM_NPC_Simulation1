@@ -10,6 +10,7 @@ public class PlayerState : MonoBehaviour
     public List<string> heldItems = new List<string>();
     public List<string> completedActions = new List<string>();
     public List<string> knownFacts = new List<string>();
+    public bool debugLogs = true;
 
     public string GetPlayerStateText()
     {
@@ -25,25 +26,77 @@ public class PlayerState : MonoBehaviour
 
     public void AddKnownFact(string fact)
     {
-        AddUnique(knownFacts, fact);
+        AddUnique(ref knownFacts, fact, "known fact");
     }
 
     public void AddHeldItem(string item)
     {
-        AddUnique(heldItems, item);
+        AddUnique(ref heldItems, item, "held item");
     }
 
-    private static void AddUnique(List<string> list, string value)
+    public void AddCompletedAction(string action)
     {
-        if (list == null || !HasText(value))
+        AddUnique(ref completedActions, action, "completed action");
+    }
+
+    public bool HasKnownFact(string fact)
+    {
+        return ContainsValue(knownFacts, fact);
+    }
+
+    public bool HasHeldItem(string item)
+    {
+        return ContainsValue(heldItems, item);
+    }
+
+    public bool HasCompletedAction(string action)
+    {
+        return ContainsValue(completedActions, action);
+    }
+
+    private void AddUnique(ref List<string> list, string value, string label)
+    {
+        if (!HasText(value))
         {
             return;
         }
 
-        if (!list.Contains(value))
+        if (list == null)
         {
-            list.Add(value);
+            list = new List<string>();
         }
+
+        string cleanValue = value.Trim();
+
+        if (!ContainsValue(list, cleanValue))
+        {
+            list.Add(cleanValue);
+
+            if (debugLogs)
+            {
+                Debug.Log("PlayerState added " + label + ": " + cleanValue, this);
+            }
+        }
+    }
+
+    private static bool ContainsValue(List<string> list, string value)
+    {
+        if (list == null || !HasText(value))
+        {
+            return false;
+        }
+
+        string cleanValue = value.Trim();
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (HasText(list[i]) && list[i].Trim() == cleanValue)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void AppendList(StringBuilder builder, string label, List<string> values)

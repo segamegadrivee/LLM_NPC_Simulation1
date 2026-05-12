@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed747992652e4cfd85880eae66660feb, type: 3}
   m_Name: SO_OpenAI_Settings
   m_EditorClassIdentifier: Assembly-CSharp::OpenAISettings
-  model: gpt-5.4-mini
+  model: gpt-4.1-mini
   maxOutputTokens: 350
   temperature: 0.7
   requestTimeoutSeconds: 60
