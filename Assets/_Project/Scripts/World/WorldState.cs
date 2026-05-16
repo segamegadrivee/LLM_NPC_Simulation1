@@ -45,6 +45,18 @@ public class WorldState : MonoBehaviour
         AddGlobalFact(fact);
     }
 
+    public void RegisterBellFound(string locationObjectId)
+    {
+        churchBellMissing = false;
+        villageMood = "calm";
+        currentEvent = "The missing church bell has been found.";
+
+        string cleanLocation = HasText(locationObjectId) ? locationObjectId.Trim() : "old_storehouse";
+        AddGlobalFact("The missing church bell was found in the old storehouse.");
+        AddGlobalFact("The village is calmer now that the bell has been found.");
+        AddGlobalFact("bell_found_in_" + cleanLocation.ToLowerInvariant().Replace(" ", "_"));
+    }
+
     public void AddGlobalFact(string fact)
     {
         if (!HasText(fact))

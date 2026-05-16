@@ -8,6 +8,7 @@ public class RuntimeChatUI : MonoBehaviour
     private const float ThinkingHeight = 24f;
     private const float InputHeight = 34f;
     private const float PromptButtonRowHeight = 30f;
+    private const float EvidenceButtonRowHeight = 30f;
     private const float DebugButtonRowHeight = 30f;
     private const float PromptPreviewHeight = 120f;
     private const float WindowPadding = 30f;
@@ -69,6 +70,12 @@ public class RuntimeChatUI : MonoBehaviour
         GUILayout.Label(npcName + " - " + npcRole, GUILayout.Height(22f));
         GUILayout.FlexibleSpace();
         GUILayout.Label("LLM: " + llmLabel);
+
+        if (GUILayout.Button("[DEBUG CONTEXT]", GUILayout.Width(150f), GUILayout.Height(22f)))
+        {
+            ContextDebugOverlay.ToggleDebugMenu();
+        }
+
         GUILayout.EndHorizontal();
     }
 
@@ -182,6 +189,20 @@ public class RuntimeChatUI : MonoBehaviour
 
         GUILayout.EndHorizontal();
 
+        GUILayout.BeginHorizontal();
+
+        if (GUILayout.Button("[DUMP CONTEXT EVIDENCE]", GUILayout.Height(24f)))
+        {
+            ContextEvidenceDumper.DumpCurrentContextEvidence(dialogueManager);
+        }
+
+        if (GUILayout.Button("[TRACE CONTEXT PIPELINE]", GUILayout.Height(24f)))
+        {
+            ContextPipelineTracer.TraceCurrentContextPipeline(dialogueManager, inputText);
+        }
+
+        GUILayout.EndHorizontal();
+
         if (showDebugControls)
         {
             GUILayout.BeginHorizontal();
@@ -248,7 +269,7 @@ public class RuntimeChatUI : MonoBehaviour
 
     private float GetButtonRowsHeight()
     {
-        return PromptButtonRowHeight + (showDebugControls ? DebugButtonRowHeight : 0f);
+        return PromptButtonRowHeight + EvidenceButtonRowHeight + (showDebugControls ? DebugButtonRowHeight : 0f);
     }
 
     private GUIStyle WrappedLabelStyle

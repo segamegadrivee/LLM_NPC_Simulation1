@@ -24,6 +24,12 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
     public OpenAISettings settings;
     public bool useMockOnFailure = true;
     public MockLLMClient fallbackMockClient;
+    public string LastActualProvider { get; private set; } = "None";
+    public bool LastOpenAIRequestSucceeded { get; private set; }
+    public bool LastMockFallbackUsed { get; private set; }
+    public long LastHttpStatusCode { get; private set; }
+    public string LastFailureMessage { get; private set; } = string.Empty;
+    public string LastModelUsed { get; private set; } = string.Empty;
 
     private void Awake()
     {
@@ -37,6 +43,12 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
 
     private System.Collections.IEnumerator SendPromptCoroutine(string prompt, Action<string> onResponse)
     {
+        LastActualProvider = "OpenAI";
+        LastOpenAIRequestSucceeded = false;
+        LastMockFallbackUsed = false;
+        LastHttpStatusCode = 0;
+        LastFailureMessage = string.Empty;
+
         if (settings == null)
         {
             CompleteWithFallbackOrError(prompt, onResponse, "[OpenAISettings is not assigned.]", true);
@@ -82,6 +94,7 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
                 yield break;
             }
 
+            LastHttpStatusCode = request.responseCode;
             Debug.Log("OpenAI response completed with HTTP status " + request.responseCode + ".", this);
 
             string parseError;
@@ -89,6 +102,10 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
 
             if (!string.IsNullOrWhiteSpace(responseText))
             {
+                LastActualProvider = "OpenAI";
+                LastOpenAIRequestSucceeded = true;
+                LastMockFallbackUsed = false;
+
                 if (onResponse != null)
                 {
                     onResponse(responseText.Trim());
@@ -112,6 +129,7 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
         string model = settings != null && !string.IsNullOrWhiteSpace(settings.model)
             ? settings.model.Trim()
             : "gpt-5.4-mini";
+        LastModelUsed = model;
 
         int maxOutputTokens = settings != null ? Mathf.Max(1, settings.maxOutputTokens) : 350;
         string input = prompt ?? string.Empty;
@@ -144,6 +162,7 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
         long statusCode = request != null ? request.responseCode : 0;
         string requestError = request != null ? request.error : "Unknown UnityWebRequest error";
         string errorMessage = TryExtractErrorMessage(responseBody);
+        LastHttpStatusCode = statusCode;
 
         Debug.LogError(
             "OpenAI request failed. HTTP status: " + statusCode +
@@ -286,9 +305,14 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
     private void CompleteWithFallbackOrError(string prompt, Action<string> onResponse, string message, bool logError)
     {
         EnsureFallbackMockClient();
+        LastFailureMessage = message;
 
         if (useMockOnFailure && fallbackMockClient != null)
         {
+            LastActualProvider = "Mock";
+            LastOpenAIRequestSucceeded = false;
+            LastMockFallbackUsed = true;
+
             if (logError)
             {
                 Debug.LogError(message + " Using MockLLMClient fallback.", this);
@@ -313,6 +337,9 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
 
         if (onResponse != null)
         {
+            LastActualProvider = "OpenAI error";
+            LastOpenAIRequestSucceeded = false;
+            LastMockFallbackUsed = false;
             onResponse(message);
         }
     }

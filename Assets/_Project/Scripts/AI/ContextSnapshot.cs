@@ -6,9 +6,12 @@ public class ContextSnapshot
     public NPCProfile npcProfile;
     public PlayerState playerState;
     public WorldState worldState;
+    public NPCState npcState;
     public List<SceneContextObject> nearbyObjects = new List<SceneContextObject>();
+    public List<WorldEvent> recentRelevantEvents = new List<WorldEvent>();
     public List<KnowledgeEntry> retrievedKnowledge = new List<KnowledgeEntry>();
     public List<DialogueMessage> recentDialogueHistory = new List<DialogueMessage>();
+    public List<string> contextSourceReasons = new List<string>();
     public string playerMessage;
 
     public string GetDebugText()
@@ -29,6 +32,10 @@ public class ContextSnapshot
         builder.AppendLine(worldState != null ? worldState.GetWorldStateText() : "None");
 
         builder.AppendLine();
+        builder.AppendLine("---- NPC Personal State ----");
+        builder.AppendLine(npcState != null ? npcState.GetStateText() : "None");
+
+        builder.AppendLine();
         builder.AppendLine("---- Nearby Scene Objects ----");
         if (nearbyObjects == null || nearbyObjects.Count == 0)
         {
@@ -41,6 +48,23 @@ public class ContextSnapshot
                 if (nearbyObjects[i] != null)
                 {
                     builder.AppendLine(nearbyObjects[i].GetContextText());
+                }
+            }
+        }
+
+        builder.AppendLine();
+        builder.AppendLine("---- Recent Relevant Events ----");
+        if (recentRelevantEvents == null || recentRelevantEvents.Count == 0)
+        {
+            builder.AppendLine("None");
+        }
+        else
+        {
+            for (int i = 0; i < recentRelevantEvents.Count; i++)
+            {
+                if (recentRelevantEvents[i] != null)
+                {
+                    builder.AppendLine(recentRelevantEvents[i].GetShortText());
                 }
             }
         }
@@ -84,6 +108,24 @@ public class ContextSnapshot
         builder.AppendLine();
         builder.AppendLine("---- Player Message ----");
         builder.AppendLine(string.IsNullOrEmpty(playerMessage) ? "None" : playerMessage);
+
+        builder.AppendLine();
+        builder.AppendLine("---- Context Source Reasons ----");
+        if (contextSourceReasons == null || contextSourceReasons.Count == 0)
+        {
+            builder.AppendLine("None");
+        }
+        else
+        {
+            for (int i = 0; i < contextSourceReasons.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(contextSourceReasons[i]))
+                {
+                    builder.AppendLine("- " + contextSourceReasons[i]);
+                }
+            }
+        }
+
         return builder.ToString();
     }
 }

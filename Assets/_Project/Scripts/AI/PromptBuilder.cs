@@ -174,41 +174,59 @@ public static class PromptBuilder
         builder.AppendLine("CURRENT NPC");
         builder.AppendLine("Current NPC Name: " + (snapshot.npcProfile != null ? snapshot.npcProfile.npcName : "Unknown"));
         builder.AppendLine("Current NPC Role: " + (snapshot.npcProfile != null ? snapshot.npcProfile.role : "Unknown"));
-        builder.AppendLine();
-
-        builder.AppendLine("NPC PROFILE");
         builder.AppendLine(snapshot.npcProfile != null ? snapshot.npcProfile.GetProfileContextText() : "None");
         builder.AppendLine();
 
-        builder.AppendLine("PLAYER STATE");
+        builder.AppendLine("VISIBLE PLAYER STATE");
         if (snapshot.playerState == null)
         {
             builder.AppendLine("None");
         }
         else
         {
-            builder.AppendLine("Reputation: " + SafeText(snapshot.playerState.reputation, "None"));
-            builder.AppendLine("Current Role: " + SafeText(snapshot.playerState.currentRole, "None"));
-            builder.AppendLine();
-
-            builder.AppendLine("PLAYER KNOWN FACTS");
-            AppendStringList(builder, snapshot.playerState.knownFacts);
-            builder.AppendLine();
-
-            builder.AppendLine("PLAYER HELD ITEMS");
-            AppendStringList(builder, snapshot.playerState.heldItems);
-            builder.AppendLine();
-
-            builder.AppendLine("PLAYER COMPLETED ACTIONS");
-            AppendStringList(builder, snapshot.playerState.completedActions);
+            builder.AppendLine("Equipped Outfit: " + SafeText(snapshot.playerState.equippedOutfit, "normal"));
+            builder.AppendLine("Visible Held Item: " + SafeText(snapshot.playerState.visibleHeldItem, "none"));
+            builder.AppendLine("Public Reputation: " + SafeText(snapshot.playerState.publicReputation, "unknown"));
+            builder.AppendLine("Aggression Score: " + snapshot.playerState.aggressionScore);
+            builder.AppendLine("Visible Status Tags:");
+            AppendStringList(builder, snapshot.playerState.visibleStatusTags);
         }
         builder.AppendLine();
 
-        builder.AppendLine("WORLD STATE");
-        builder.AppendLine(snapshot.worldState != null ? snapshot.worldState.GetWorldStateText() : "None");
+        builder.AppendLine("PLAYER DISCOVERED FACTS");
+        builder.AppendLine("These are facts discovered or carried by the player. Do not treat them as NPC-owned knowledge unless another section also supports that.");
+        if (snapshot.playerState == null)
+        {
+            builder.AppendLine("- None");
+        }
+        else
+        {
+            AppendStringList(builder, snapshot.playerState.knownFacts);
+            builder.AppendLine("Player completed actions:");
+            AppendStringList(builder, snapshot.playerState.completedActions);
+            builder.AppendLine("Player held/history items:");
+            AppendStringList(builder, snapshot.playerState.heldItems);
+        }
         builder.AppendLine();
 
-        builder.AppendLine("NEARBY SCENE CONTEXT");
+        builder.AppendLine("NPC STATE TOWARD PLAYER");
+        if (snapshot.npcState == null)
+        {
+            builder.AppendLine("Mood: neutral");
+            builder.AppendLine("Trust To Player: medium");
+            builder.AppendLine("Personal Events:");
+            builder.AppendLine("- None");
+        }
+        else
+        {
+            builder.AppendLine("Mood: " + SafeText(snapshot.npcState.mood, "neutral"));
+            builder.AppendLine("Trust To Player: " + SafeText(snapshot.npcState.trustToPlayer, "medium"));
+            builder.AppendLine("Personal Events:");
+            AppendStringList(builder, snapshot.npcState.personalEvents);
+        }
+        builder.AppendLine();
+
+        builder.AppendLine("LOCAL ENVIRONMENT");
         if (snapshot.nearbyObjects == null || snapshot.nearbyObjects.Count == 0)
         {
             builder.AppendLine("None");
@@ -225,7 +243,29 @@ public static class PromptBuilder
         }
         builder.AppendLine();
 
+        builder.AppendLine("PUBLIC WORLD STATE");
+        builder.AppendLine(snapshot.worldState != null ? snapshot.worldState.GetWorldStateText() : "None");
+        builder.AppendLine();
+
+        builder.AppendLine("RECENT RELEVANT EVENTS");
+        if (snapshot.recentRelevantEvents == null || snapshot.recentRelevantEvents.Count == 0)
+        {
+            builder.AppendLine("None");
+        }
+        else
+        {
+            for (int i = 0; i < snapshot.recentRelevantEvents.Count; i++)
+            {
+                if (snapshot.recentRelevantEvents[i] != null)
+                {
+                    builder.AppendLine(snapshot.recentRelevantEvents[i].GetShortText());
+                }
+            }
+        }
+        builder.AppendLine();
+
         builder.AppendLine("RETRIEVED KNOWLEDGE");
+        builder.AppendLine("Only entries allowed for this NPC by knownByNpcIds access rules are included here. Empty knownByNpcIds means public knowledge.");
         if (snapshot.retrievedKnowledge == null || snapshot.retrievedKnowledge.Count == 0)
         {
             builder.AppendLine("None");
@@ -242,27 +282,53 @@ public static class PromptBuilder
         }
         builder.AppendLine();
 
-        builder.AppendLine("RECENT CONVERSATION WITH THIS NPC");
+        builder.AppendLine("RECENT MEMORY");
+        builder.AppendLine("This is previous dialogue with this NPC only.");
         if (snapshot.recentDialogueHistory == null || snapshot.recentDialogueHistory.Count == 0)
         {
             builder.AppendLine("None");
         }
         else
         {
+            bool wroteMemory = false;
+
             for (int i = 0; i < snapshot.recentDialogueHistory.Count; i++)
             {
                 DialogueMessage message = snapshot.recentDialogueHistory[i];
 
-                if (message != null)
+                if (message != null && !IsDuplicateCurrentPlayerMessage(message, snapshot.playerMessage))
                 {
                     builder.AppendLine(SafeText(message.speaker, "Unknown") + ": " + SafeText(message.text, "..."));
+                    wroteMemory = true;
                 }
+            }
+
+            if (!wroteMemory)
+            {
+                builder.AppendLine("None");
             }
         }
         builder.AppendLine();
 
-        builder.AppendLine("PLAYER MESSAGE");
+        builder.AppendLine("CURRENT PLAYER MESSAGE");
         builder.AppendLine(string.IsNullOrEmpty(snapshot.playerMessage) ? "..." : snapshot.playerMessage);
+        builder.AppendLine();
+
+        builder.AppendLine("RESPONSE RULES");
+        builder.AppendLine("- Stay in character.");
+        builder.AppendLine("- Respond naturally, not like a robot.");
+        builder.AppendLine("- Use simple human language.");
+        builder.AppendLine("- Do not list all context.");
+        builder.AppendLine("- Do not mention internal variable names.");
+        builder.AppendLine("- React to visible player state when relevant.");
+        builder.AppendLine("- React to NPC mood/trust when relevant.");
+        builder.AppendLine("- React to local environment when relevant.");
+        builder.AppendLine("- React to global bell state when relevant.");
+        builder.AppendLine("- If the player previously attacked this NPC, the NPC should not act friendly.");
+        builder.AppendLine("- If the player attacked another NPC, do not mention it unless this NPC is allowed to know it.");
+        builder.AppendLine("- If the player wears guard armor, NPCs may interpret it differently depending on personality.");
+        builder.AppendLine("- If the bell has been found, NPCs should acknowledge the village feels calmer or more focused.");
+        builder.AppendLine("- Keep responses concise: usually 1-4 sentences.");
         builder.AppendLine();
 
         builder.AppendLine("FINAL CHECK BEFORE ANSWERING:");
@@ -283,6 +349,24 @@ public static class PromptBuilder
     private static string SafeText(string value, string fallback)
     {
         return string.IsNullOrEmpty(value) || value.Trim().Length == 0 ? fallback : value;
+    }
+
+    private static bool IsDuplicateCurrentPlayerMessage(DialogueMessage message, string currentPlayerMessage)
+    {
+        if (message == null || string.IsNullOrEmpty(currentPlayerMessage))
+        {
+            return false;
+        }
+
+        if (!string.Equals(message.speaker, "Player", System.StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return string.Equals(
+            SafeText(message.text, string.Empty).Trim(),
+            currentPlayerMessage.Trim(),
+            System.StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AppendStringList(StringBuilder builder, List<string> values)

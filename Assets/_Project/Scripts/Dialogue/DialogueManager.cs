@@ -24,8 +24,50 @@ public class DialogueManager : MonoBehaviour
     public bool IsWaitingForResponse;
     public string LastGeneratedPrompt;
     public string CurrentLLMName { get; private set; } = "None";
+    public ContextSnapshot LastContextSnapshot { get; private set; }
+    public string LastPlayerMessage { get; private set; } = string.Empty;
+    public string LastNpcResponse { get; private set; } = string.Empty;
+    public string LastIntendedLLMProvider { get; private set; } = "None";
+    public string LastActualLLMProvider { get; private set; } = "None";
+    public bool LastLLMResponseReceived { get; private set; }
+    public bool LastResponseStoredInMemory { get; private set; }
 
     private ILLMClient llmClient;
+
+    public NPCProfile CurrentNpc
+    {
+        get { return currentNpc; }
+    }
+
+    public Transform CurrentNpcTransform
+    {
+        get { return currentNpcTransform; }
+    }
+
+    public ContextRetriever DebugContextRetriever
+    {
+        get { return contextRetriever; }
+    }
+
+    public NPCConversationMemoryStore DebugConversationMemoryStore
+    {
+        get { return conversationMemoryStore; }
+    }
+
+    public bool DebugUseOpenAI
+    {
+        get { return useOpenAI; }
+    }
+
+    public OpenAIClient DebugOpenAIClient
+    {
+        get { return openAIClient; }
+    }
+
+    public MockLLMClient DebugFallbackMockLLMClient
+    {
+        get { return fallbackMockLLMClient; }
+    }
 
 #if ENABLE_INPUT_SYSTEM
     private PlayerInput disabledPlayerInput;
@@ -70,6 +112,13 @@ public class DialogueManager : MonoBehaviour
         EnsureConversationMemoryStore();
         messages.Clear();
         LastGeneratedPrompt = string.Empty;
+        LastContextSnapshot = null;
+        LastPlayerMessage = string.Empty;
+        LastNpcResponse = string.Empty;
+        LastIntendedLLMProvider = "None";
+        LastActualLLMProvider = "None";
+        LastLLMResponseReceived = false;
+        LastResponseStoredInMemory = false;
         IsWaitingForResponse = false;
         LockDialogueInput();
 
@@ -138,10 +187,17 @@ public class DialogueManager : MonoBehaviour
         };
 
         AddVisibleMessage(playerMessage);
-        AddMessageToMemory(currentNpc.npcId, playerMessage);
 
         IsWaitingForResponse = true;
         NPCProfile respondingNpc = currentNpc;
+        LastContextSnapshot = null;
+        LastGeneratedPrompt = string.Empty;
+        LastPlayerMessage = text;
+        LastNpcResponse = string.Empty;
+        LastIntendedLLMProvider = CurrentLLMName;
+        LastActualLLMProvider = "None";
+        LastLLMResponseReceived = false;
+        LastResponseStoredInMemory = false;
 
         if (contextRetriever == null)
         {
@@ -158,11 +214,16 @@ public class DialogueManager : MonoBehaviour
         }
 
         ContextSnapshot snapshot = contextRetriever.BuildSnapshot(currentNpc, currentNpcTransform, text);
+        LastContextSnapshot = snapshot;
         LastGeneratedPrompt = PromptBuilder.BuildPrompt(snapshot);
+        AddMessageToMemory(currentNpc.npcId, playerMessage);
+        LastActualLLMProvider = "Pending";
         Debug.Log("Generated NPC prompt:\n" + LastGeneratedPrompt, this);
 
         llmClient.SendPrompt(LastGeneratedPrompt, delegate(string response)
         {
+            LastActualLLMProvider = ResolveActualLLMProviderName();
+            LastLLMResponseReceived = true;
             AddNpcResponse(respondingNpc, response);
         });
     }
@@ -177,6 +238,8 @@ public class DialogueManager : MonoBehaviour
             text = string.IsNullOrEmpty(response) ? "..." : response
         };
 
+        LastNpcResponse = npcMessage.text;
+
         if (IsOpen && IsSameNpc(npc, currentNpc))
         {
             AddVisibleMessage(npcMessage);
@@ -184,7 +247,11 @@ public class DialogueManager : MonoBehaviour
 
         if (npc != null)
         {
-            AddMessageToMemory(npc.npcId, npcMessage);
+            LastResponseStoredInMemory = AddMessageToMemory(npc.npcId, npcMessage);
+        }
+        else
+        {
+            LastResponseStoredInMemory = false;
         }
 
         IsWaitingForResponse = false;
@@ -219,6 +286,13 @@ public class DialogueManager : MonoBehaviour
         EnsureMessagesList();
         messages.Clear();
         LastGeneratedPrompt = string.Empty;
+        LastContextSnapshot = null;
+        LastPlayerMessage = string.Empty;
+        LastNpcResponse = string.Empty;
+        LastIntendedLLMProvider = "None";
+        LastActualLLMProvider = "None";
+        LastLLMResponseReceived = false;
+        LastResponseStoredInMemory = false;
         IsWaitingForResponse = false;
 
         AddVisibleMessage(new DialogueMessage
@@ -240,6 +314,13 @@ public class DialogueManager : MonoBehaviour
         EnsureMessagesList();
         messages.Clear();
         LastGeneratedPrompt = string.Empty;
+        LastContextSnapshot = null;
+        LastPlayerMessage = string.Empty;
+        LastNpcResponse = string.Empty;
+        LastIntendedLLMProvider = "None";
+        LastActualLLMProvider = "None";
+        LastLLMResponseReceived = false;
+        LastResponseStoredInMemory = false;
         IsWaitingForResponse = false;
 
         if (currentNpc != null)
@@ -271,6 +352,30 @@ public class DialogueManager : MonoBehaviour
         llmClient = null;
         CurrentLLMName = "None";
         Debug.LogError("No LLM client assigned in DialogueManager.", this);
+    }
+
+    private string ResolveActualLLMProviderName()
+    {
+        if (llmClient == null)
+        {
+            return "None";
+        }
+
+        OpenAIClient selectedOpenAIClient = llmClient as OpenAIClient;
+        if (selectedOpenAIClient != null)
+        {
+            return string.IsNullOrEmpty(selectedOpenAIClient.LastActualProvider)
+                ? "OpenAI"
+                : selectedOpenAIClient.LastActualProvider;
+        }
+
+        MockLLMClient selectedMockClient = llmClient as MockLLMClient;
+        if (selectedMockClient != null)
+        {
+            return "Mock";
+        }
+
+        return llmClient.GetType().Name;
     }
 
     private void EnsureMessagesList()
@@ -322,14 +427,17 @@ public class DialogueManager : MonoBehaviour
         });
     }
 
-    private void AddMessageToMemory(string npcId, DialogueMessage message)
+    private bool AddMessageToMemory(string npcId, DialogueMessage message)
     {
         EnsureConversationMemoryStore();
 
         if (conversationMemoryStore != null)
         {
             conversationMemoryStore.AddMessage(npcId, message);
+            return true;
         }
+
+        return false;
     }
 
     private static bool IsSameNpc(NPCProfile first, NPCProfile second)
