@@ -10,97 +10,175 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09c965f81bcf24840bacc8833d8d8e42, type: 3}
-  m_Name: SO_BellScenario_KnowledgeBase
+  m_Name: SO_FinalMvp_KnowledgeBase
   m_EditorClassIdentifier: Assembly-CSharp::KnowledgeBase
   entries:
-  - id: church_bell_history
-    title: History of the church bell
-    text: The old church bell was used for generations to gather villagers and warn
-      them during danger. Many villagers see it as a symbol of protection and unity.
+  - id: public_guard_armor_signal
+    title: Guard armor as a social signal
+    text: Guard armor makes villagers more careful around the player. Some see it
+      as protection and responsibility; others see it as pressure, authority, or possible
+      intimidation.
     tags:
-    - church
+    - armor
+    - guard_armor
+    - armored
+    - authority_signal
+    - authority
+    - trust
+    - appearance
+    knownByNpcIds: []
+    relatedObjectIds: []
+    importance: 5
+  - id: public_dark_cloak_signal
+    title: Dark cloak as a suspicious signal
+    text: A dark cloak makes the player look like someone trying not to be recognized.
+      Villagers may become cautious, suspicious, or less willing to speak openly.
+    tags:
+    - dark_cloak
+    - cloak
+    - suspicious
+    - hidden_identity
+    - secrecy
+    - appearance
+    - trust
+    knownByNpcIds: []
+    relatedObjectIds: []
+    importance: 5
+  - id: public_visible_weapon_signal
+    title: Visible weapon as a threat signal
+    text: A visible weapon or dangerous object changes the tone of a conversation.
+      Villagers may become cautious, defensive, or afraid when the player is visibly
+      armed.
+    tags:
+    - weapon
+    - armed
+    - sword
+    - hammer
+    - danger
+    - threat
+    - appearance
+    knownByNpcIds: []
+    relatedObjectIds: []
+    importance: 4
+  - id: public_aggressive_behavior_consequence
+    title: Aggressive behavior reduces trust
+    text: If the player acts aggressively toward someone, that target should become
+      less trusting and more hostile. Other NPCs should not know about it unless the
+      event is public or explicitly witnessed.
+    tags:
+    - aggression
+    - trust
+    - reputation
+    - angry
+    - hostile
+    - personal_event
+    knownByNpcIds: []
+    relatedObjectIds: []
+    importance: 5
+  - id: public_missing_bell_tension
+    title: The missing bell creates village tension
+    text: The old church bell is missing, and the village feels uneasy. The bell
+      represented order, routine, and shared trust, so its absence makes people nervous.
+    tags:
     - bell
-    - history
-    - tradition
+    - missing_bell
+    - church
+    - village
+    - tension
+    - worried
+    knownByNpcIds: []
     relatedObjectIds:
     - church
-    knownByNpcIds:
-    - eldric
-    - anselm
-    importance: 3
-  - id: mira_saw_stranger
-    title: Mira saw a stranger
-    text: Mira noticed a nervous stranger in the tavern last night. He avoided long
-      conversations and asked when the church square becomes empty.
+    importance: 4
+  - id: public_bell_found_resolution
+    title: Finding the bell changes the village mood
+    text: If the missing bell is found, the village becomes calmer, but people still
+      want to know why it was hidden and who moved it.
     tags:
-    - tavern
-    - stranger
-    - rumors
-    - bell
-    relatedObjectIds:
-    - tavern
+    - bell_found
+    - found
+    - resolved
+    - calm
+    - village
     - church
+    knownByNpcIds: []
+    relatedObjectIds:
+    - church
+    - old_storehouse
+    importance: 5
+  - id: mira_reads_people_in_tavern
+    title: Mira reads people in the tavern
+    text: Mira pays close attention to how people dress, speak, and behave in the
+      tavern. She notices uniforms, cloaks, nervousness, lies, and social tension
+      quickly.
+    tags:
+    - mira
+    - tavern
+    - people
+    - social
+    - appearance
+    - armor
+    - cloak
+    - suspicious
+    - trust
     knownByNpcIds:
     - mira
-    importance: 3
-  - id: borin_bell_metal
-    title: Borin understands the bell as metalwork
-    text: Borin knows that a church bell is heavy and difficult to move quietly.
-      Moving it would require tools, a cart, or several people.
-    tags:
-    - blacksmith
-    - metal
-    - tools
-    - bell
-    - evidence
     relatedObjectIds:
-    - blacksmith_area
-    - church
+    - tavern
+    importance: 5
+  - id: borin_judges_actions_not_clothes
+    title: Borin judges actions more than clothing
+    text: Borin does not trust uniforms, cloaks, or appearances by themselves. He
+      cares more about what the player does, especially around tools, weapons, or
+      violence.
+    tags:
+    - borin
+    - forge
+    - tools
+    - armor
+    - cloak
+    - weapon
+    - aggression
+    - trust
+    - actions
     knownByNpcIds:
     - borin
-    importance: 3
-  - id: eldric_public_order
-    title: Eldric worries about public order
-    text: Eldric worries that the missing bell may cause fear and distrust in the
-      village because the bell was used as a public warning signal.
+    relatedObjectIds:
+    - forge
+    importance: 5
+  - id: eldric_connects_armor_with_responsibility
+    title: Eldric connects armor with responsibility
+    text: Eldric sees guard armor as a sign of responsibility. If the player wears
+      it, he expects discipline, restraint, and protection of the village.
     tags:
-    - village
+    - eldric
+    - authority
     - order
-    - bell
-    - leadership
+    - guard_armor
+    - armor
+    - responsibility
+    - village
+    knownByNpcIds:
+    - eldric
     relatedObjectIds:
     - village_square
     - church
-    knownByNpcIds:
-    - eldric
-    importance: 3
-  - id: anselm_symbolic_meaning
-    title: Anselm sees the bell as a symbol
-    text: Anselm believes the bell is not just a tool but a symbol of memory, protection,
-      and continuity for the village.
+    importance: 5
+  - id: anselm_cares_about_conduct_near_church
+    title: Anselm cares about conduct near the church
+    text: Anselm is sensitive to behavior near the church. Weapons, aggression, and
+      suspicious conduct feel especially wrong near sacred or quiet places.
     tags:
+    - anselm
     - church
+    - sacred
+    - conduct
+    - aggression
+    - weapon
+    - cloak
     - bell
-    - tradition
-    - memory
-    relatedObjectIds:
-    - church
     knownByNpcIds:
     - anselm
-    importance: 3
-  - id: road_cart_possibility
-    title: A cart may have been used
-    text: If the bell was taken from the church, it was likely moved by cart or by
-      several people through the village road.
-    tags:
-    - road
-    - cart
-    - bell
-    - evidence
     relatedObjectIds:
-    - village_road
     - church
-    knownByNpcIds:
-    - borin
-    - eldric
-    importance: 2
+    importance: 5

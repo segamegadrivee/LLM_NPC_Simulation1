@@ -384,9 +384,11 @@ public static class ContextEvidenceDumper
         AppendStringList(builder, "- knownByNpcIds", entry.knownByNpcIds);
         AppendStringList(builder, "- relatedObjectIds", entry.relatedObjectIds);
         builder.AppendLine("- importance: " + entry.importance);
+        builder.AppendLine("- allowed: " + BoolText(evidence.allowedForNpc));
+        builder.AppendLine("- inContextSnapshot: " + BoolText(SnapshotContainsKnowledge(snapshot, entry)));
         builder.AppendLine("- final score: " + evidence.finalScore);
-        builder.AppendLine("- included in ContextSnapshot.retrievedKnowledge: " + SnapshotContainsKnowledge(snapshot, entry));
-        builder.AppendLine("- reason why retrieved: " + SafeText(evidence.finalDecisionReason, "No decision reason recorded."));
+        AppendActivationFlags(builder, evidence);
+        builder.AppendLine("- final reason: " + SafeText(evidence.finalDecisionReason, "No decision reason recorded."));
         AppendStringList(builder, "- scoring reasons", evidence.retrievalReasons);
     }
 
@@ -401,8 +403,14 @@ public static class ContextEvidenceDumper
         }
 
         builder.AppendLine("SKIPPED: " + SafeText(entry.id, "no id") + " / " + SafeText(entry.title, "no title"));
+        builder.AppendLine("- allowed: " + (evidence != null ? BoolText(evidence.allowedForNpc) : "NOT AVAILABLE"));
+        builder.AppendLine("- inContextSnapshot: false");
         builder.AppendLine("- final score: " + (evidence != null ? evidence.finalScore.ToString() : "NOT AVAILABLE"));
-        builder.AppendLine("- reason why skipped: " + (evidence != null ? SafeText(evidence.finalDecisionReason, "No decision reason recorded.") : "NOT AVAILABLE: no debug evidence."));
+        if (evidence != null)
+        {
+            AppendActivationFlags(builder, evidence);
+        }
+        builder.AppendLine("- final reason: " + (evidence != null ? SafeText(evidence.finalDecisionReason, "No decision reason recorded.") : "NOT AVAILABLE: no debug evidence."));
 
         if (evidence != null)
         {
@@ -413,6 +421,22 @@ public static class ContextEvidenceDumper
                 AppendStringList(builder, "- positive scoring evidence", evidence.retrievalReasons);
             }
         }
+    }
+
+    private static void AppendActivationFlags(StringBuilder builder, ContextRetriever.DebugKnowledgeRetrievalEntry evidence)
+    {
+        if (builder == null || evidence == null)
+        {
+            return;
+        }
+
+        builder.AppendLine("- activation sources:");
+        builder.AppendLine("  - message_activation: " + BoolText(evidence.hasMessageActivation));
+        builder.AppendLine("  - visible_state_activation: " + BoolText(evidence.hasVisibleStateActivation));
+        builder.AppendLine("  - npc_state_activation: " + BoolText(evidence.hasNpcStateActivation));
+        builder.AppendLine("  - world_event_activation: " + BoolText(evidence.hasWorldEventActivation));
+        builder.AppendLine("  - world_state_activation: " + BoolText(evidence.hasWorldStateActivation));
+        builder.AppendLine("  - local_activation: " + BoolText(evidence.hasLocalActivation));
     }
 
     private static void AppendContextSnapshot(StringBuilder builder, DumpData data)
@@ -841,8 +865,9 @@ public static class ContextEvidenceDumper
         }
 
         builder.AppendLine("- KnowledgeEntry.text/content does not affect retrieval score; it only appears in the prompt after the entry is selected.");
-        builder.AppendLine("- KnowledgeBase access control now runs before scoring: private entries are skipped unless knownByNpcIds includes the active npcId.");
-        builder.AppendLine("- SceneContextObject displayName, objectType, tags, and stateFacts can support scoring; descriptions still mainly appear after local context is included.");
+        builder.AppendLine("- KnowledgeBase access control runs before scoring: private entries are skipped unless knownByNpcIds includes the active npcId.");
+        builder.AppendLine("- KnowledgeBase retrieval now requires a strong activation source; SceneContextObject data, NPC profile tags, and importance can support scoring but do not activate by themselves.");
+        builder.AppendLine("- SceneContextObject displayName, objectType, tags, and stateFacts can support local scoring; descriptions still mainly appear after local context is included.");
         builder.AppendLine("- EvidenceObject metadata is not read directly by ContextRetriever or PromptBuilder. Evidence affects context only after facts/items are copied into PlayerState.");
     }
 
@@ -1410,6 +1435,11 @@ public static class ContextEvidenceDumper
     private static string SafeText(string value, string fallback)
     {
         return string.IsNullOrEmpty(value) || value.Trim().Length == 0 ? fallback : value;
+    }
+
+    private static string BoolText(bool value)
+    {
+        return value ? "true" : "false";
     }
 
     private class DumpData

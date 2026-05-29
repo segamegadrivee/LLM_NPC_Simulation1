@@ -158,67 +158,108 @@ public static class CreateBellScenarioDemoData
         }
 
         KnowledgeBase knowledgeBase = ScriptableObject.CreateInstance<KnowledgeBase>();
+        knowledgeBase.name = "SO_FinalMvp_KnowledgeBase";
         knowledgeBase.entries = new List<KnowledgeEntry>
         {
             new KnowledgeEntry
             {
-                id = "church_bell_history",
-                title = "History of the church bell",
-                text = "The old church bell was used for generations to gather villagers and warn them during danger. Many villagers see it as a symbol of protection and unity.",
-                tags = new List<string> { "church", "bell", "history", "tradition" },
+                id = "public_guard_armor_signal",
+                title = "Guard armor as a social signal",
+                text = "Guard armor makes villagers more careful around the player. Some see it as protection and responsibility; others see it as pressure, authority, or possible intimidation.",
+                tags = new List<string> { "armor", "guard_armor", "armored", "authority_signal", "authority", "trust", "appearance" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string>(),
+                importance = 5
+            },
+            new KnowledgeEntry
+            {
+                id = "public_dark_cloak_signal",
+                title = "Dark cloak as a suspicious signal",
+                text = "A dark cloak makes the player look like someone trying not to be recognized. Villagers may become cautious, suspicious, or less willing to speak openly.",
+                tags = new List<string> { "dark_cloak", "cloak", "suspicious", "hidden_identity", "secrecy", "appearance", "trust" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string>(),
+                importance = 5
+            },
+            new KnowledgeEntry
+            {
+                id = "public_visible_weapon_signal",
+                title = "Visible weapon as a threat signal",
+                text = "A visible weapon or dangerous object changes the tone of a conversation. Villagers may become cautious, defensive, or afraid when the player is visibly armed.",
+                tags = new List<string> { "weapon", "armed", "sword", "hammer", "danger", "threat", "appearance" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string>(),
+                importance = 4
+            },
+            new KnowledgeEntry
+            {
+                id = "public_aggressive_behavior_consequence",
+                title = "Aggressive behavior reduces trust",
+                text = "If the player acts aggressively toward someone, that target should become less trusting and more hostile. Other NPCs should not know about it unless the event is public or explicitly witnessed.",
+                tags = new List<string> { "aggression", "trust", "reputation", "angry", "hostile", "personal_event" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string>(),
+                importance = 5
+            },
+            new KnowledgeEntry
+            {
+                id = "public_missing_bell_tension",
+                title = "The missing bell creates village tension",
+                text = "The old church bell is missing, and the village feels uneasy. The bell represented order, routine, and shared trust, so its absence makes people nervous.",
+                tags = new List<string> { "bell", "missing_bell", "church", "village", "tension", "worried" },
                 relatedObjectIds = new List<string> { "church" },
-                knownByNpcIds = new List<string> { "eldric", "anselm" },
-                importance = 3
+                knownByNpcIds = new List<string>(),
+                importance = 4
             },
             new KnowledgeEntry
             {
-                id = "mira_saw_stranger",
-                title = "Mira saw a stranger",
-                text = "Mira noticed a nervous stranger in the tavern last night. He avoided long conversations and asked when the church square becomes empty.",
-                tags = new List<string> { "tavern", "stranger", "rumors", "bell" },
-                relatedObjectIds = new List<string> { "tavern", "church" },
+                id = "public_bell_found_resolution",
+                title = "Finding the bell changes the village mood",
+                text = "If the missing bell is found, the village becomes calmer, but people still want to know why it was hidden and who moved it.",
+                tags = new List<string> { "bell_found", "found", "resolved", "calm", "village", "church" },
+                relatedObjectIds = new List<string> { "church", "old_storehouse" },
+                knownByNpcIds = new List<string>(),
+                importance = 5
+            },
+            new KnowledgeEntry
+            {
+                id = "mira_reads_people_in_tavern",
+                title = "Mira reads people in the tavern",
+                text = "Mira pays close attention to how people dress, speak, and behave in the tavern. She notices uniforms, cloaks, nervousness, lies, and social tension quickly.",
+                tags = new List<string> { "mira", "tavern", "people", "social", "appearance", "armor", "cloak", "suspicious", "trust" },
+                relatedObjectIds = new List<string> { "tavern" },
                 knownByNpcIds = new List<string> { "mira" },
-                importance = 3
+                importance = 5
             },
             new KnowledgeEntry
             {
-                id = "borin_bell_metal",
-                title = "Borin understands the bell as metalwork",
-                text = "Borin knows that a church bell is heavy and difficult to move quietly. Moving it would require tools, a cart, or several people.",
-                tags = new List<string> { "blacksmith", "metal", "tools", "bell", "evidence" },
-                relatedObjectIds = new List<string> { "blacksmith_area", "church" },
+                id = "borin_judges_actions_not_clothes",
+                title = "Borin judges actions more than clothing",
+                text = "Borin does not trust uniforms, cloaks, or appearances by themselves. He cares more about what the player does, especially around tools, weapons, or violence.",
+                tags = new List<string> { "borin", "forge", "tools", "armor", "cloak", "weapon", "aggression", "trust", "actions" },
+                relatedObjectIds = new List<string> { "forge" },
                 knownByNpcIds = new List<string> { "borin" },
-                importance = 3
+                importance = 5
             },
             new KnowledgeEntry
             {
-                id = "eldric_public_order",
-                title = "Eldric worries about public order",
-                text = "Eldric worries that the missing bell may cause fear and distrust in the village because the bell was used as a public warning signal.",
-                tags = new List<string> { "village", "order", "bell", "leadership" },
+                id = "eldric_connects_armor_with_responsibility",
+                title = "Eldric connects armor with responsibility",
+                text = "Eldric sees guard armor as a sign of responsibility. If the player wears it, he expects discipline, restraint, and protection of the village.",
+                tags = new List<string> { "eldric", "authority", "order", "guard_armor", "armor", "responsibility", "village" },
                 relatedObjectIds = new List<string> { "village_square", "church" },
                 knownByNpcIds = new List<string> { "eldric" },
-                importance = 3
+                importance = 5
             },
             new KnowledgeEntry
             {
-                id = "anselm_symbolic_meaning",
-                title = "Anselm sees the bell as a symbol",
-                text = "Anselm believes the bell is not just a tool but a symbol of memory, protection, and continuity for the village.",
-                tags = new List<string> { "church", "bell", "tradition", "memory" },
+                id = "anselm_cares_about_conduct_near_church",
+                title = "Anselm cares about conduct near the church",
+                text = "Anselm is sensitive to behavior near the church. Weapons, aggression, and suspicious conduct feel especially wrong near sacred or quiet places.",
+                tags = new List<string> { "anselm", "church", "sacred", "conduct", "aggression", "weapon", "cloak", "bell" },
                 relatedObjectIds = new List<string> { "church" },
                 knownByNpcIds = new List<string> { "anselm" },
-                importance = 3
-            },
-            new KnowledgeEntry
-            {
-                id = "road_cart_possibility",
-                title = "A cart may have been used",
-                text = "If the bell was taken from the church, it was likely moved by cart or by several people through the village road.",
-                tags = new List<string> { "road", "cart", "bell", "evidence" },
-                relatedObjectIds = new List<string> { "village_road", "church" },
-                knownByNpcIds = new List<string> { "borin", "eldric" },
-                importance = 2
+                importance = 5
             }
         };
 

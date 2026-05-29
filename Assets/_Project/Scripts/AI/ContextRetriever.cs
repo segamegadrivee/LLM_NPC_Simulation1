@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 // Place one ContextRetriever on GameSystems and assign the KnowledgeBase asset.
 public class ContextRetriever : MonoBehaviour
 {
     public static ContextRetriever Instance { get; private set; }
+
+    private const int KnowledgeRetrievalThreshold = 7;
+    private const int MaxRetrievedKnowledgeEntriesCap = 5;
 
     public KnowledgeBase knowledgeBase;
     public NPCConversationMemoryStore conversationMemoryStore;
@@ -125,11 +129,11 @@ public class ContextRetriever : MonoBehaviour
         for (int i = 0; i < entries.Count; i++)
         {
             KnowledgeEntry entry = entries[i];
-            int score = ScoreEntry(entry, npc, nearbyObjects, playerMessage, playerState, worldState, npcState, relevantEvents);
+            KnowledgeRetrievalEvaluation evaluation = EvaluateKnowledgeEntry(entry, npc, nearbyObjects, playerMessage, playerState, worldState, npcState, relevantEvents);
 
-            if (score > 0)
+            if (evaluation.IsEligibleForRetrieval)
             {
-                scoredEntries.Add(new ScoredKnowledgeEntry(entry, score));
+                scoredEntries.Add(new ScoredKnowledgeEntry(entry, evaluation.score));
             }
         }
 
@@ -153,7 +157,7 @@ public class ContextRetriever : MonoBehaviour
         });
 
         List<KnowledgeEntry> result = new List<KnowledgeEntry>();
-        int count = Mathf.Min(maxKnowledgeEntries, scoredEntries.Count);
+        int count = Mathf.Min(GetKnowledgeResultLimit(), scoredEntries.Count);
 
         for (int i = 0; i < count; i++)
         {
@@ -201,17 +205,17 @@ public class ContextRetriever : MonoBehaviour
             result.Add(BuildDebugKnowledgeRetrievalEntry(entries[i], npc, nearbyObjects, playerMessage, playerState, worldState, npcState, relevantEvents));
         }
 
-        List<DebugKnowledgeRetrievalEntry> positiveEntries = new List<DebugKnowledgeRetrievalEntry>();
+        List<DebugKnowledgeRetrievalEntry> activatedEntries = new List<DebugKnowledgeRetrievalEntry>();
 
         for (int i = 0; i < result.Count; i++)
         {
-            if (result[i] != null && result[i].finalScore > 0)
+            if (result[i] != null && result[i].allowedForNpc && result[i].hasStrongActivation && result[i].finalScore >= KnowledgeRetrievalThreshold)
             {
-                positiveEntries.Add(result[i]);
+                activatedEntries.Add(result[i]);
             }
         }
 
-        positiveEntries.Sort(delegate(DebugKnowledgeRetrievalEntry a, DebugKnowledgeRetrievalEntry b)
+        activatedEntries.Sort(delegate(DebugKnowledgeRetrievalEntry a, DebugKnowledgeRetrievalEntry b)
         {
             int scoreCompare = b.finalScore.CompareTo(a.finalScore);
 
@@ -230,40 +234,31 @@ public class ContextRetriever : MonoBehaviour
             return string.Compare(a.entry.title, b.entry.title, System.StringComparison.OrdinalIgnoreCase);
         });
 
-        int includedCount = Mathf.Min(maxKnowledgeEntries, positiveEntries.Count);
+        int includedCount = Mathf.Min(GetKnowledgeResultLimit(), activatedEntries.Count);
 
-        for (int i = 0; i < positiveEntries.Count; i++)
+        for (int i = 0; i < activatedEntries.Count; i++)
         {
-            DebugKnowledgeRetrievalEntry debugEntry = positiveEntries[i];
+            DebugKnowledgeRetrievalEntry debugEntry = activatedEntries[i];
             debugEntry.rank = i + 1;
 
             if (i < includedCount)
             {
                 debugEntry.includedByRetriever = true;
-                debugEntry.finalDecisionReason = "RETRIEVED: positive score and rank " + debugEntry.rank + " is within maxKnowledgeEntries (" + maxKnowledgeEntries + ").";
+                debugEntry.finalDecisionReason = "retrieved_top_ranked";
+                debugEntry.retrievalReasons.Add("rank " + debugEntry.rank + " is within retrieval limit " + includedCount + ".");
             }
             else
             {
                 debugEntry.includedByRetriever = false;
-                debugEntry.finalDecisionReason = "SKIPPED: scored " + debugEntry.finalScore + " but rank " + debugEntry.rank + " is outside maxKnowledgeEntries (" + maxKnowledgeEntries + ").";
-            }
-        }
-
-        for (int i = 0; i < result.Count; i++)
-        {
-            DebugKnowledgeRetrievalEntry debugEntry = result[i];
-
-            if (debugEntry != null && debugEntry.finalScore <= 0)
-            {
-                debugEntry.includedByRetriever = false;
-                debugEntry.finalDecisionReason = "SKIPPED: final score is 0, so RetrieveRelevantKnowledge did not include it.";
+                debugEntry.finalDecisionReason = "retrieved_allowed_and_activated";
+                debugEntry.skippedReasons.Add("Entry passed access, activation, and threshold, but rank " + debugEntry.rank + " is outside the retrieval limit " + includedCount + ".");
             }
         }
 
         return result;
     }
 
-    private int ScoreEntry(
+    private KnowledgeRetrievalEvaluation EvaluateKnowledgeEntry(
         KnowledgeEntry entry,
         NPCProfile npc,
         List<SceneContextObject> nearbyObjects,
@@ -273,74 +268,106 @@ public class ContextRetriever : MonoBehaviour
         NPCState npcState,
         List<WorldEvent> relevantEvents)
     {
+        KnowledgeRetrievalEvaluation evaluation = new KnowledgeRetrievalEvaluation();
+
         if (entry == null)
         {
-            return 0;
+            evaluation.finalDecisionReason = "skipped_below_threshold";
+            return evaluation;
         }
 
-        if (!IsKnowledgeAllowedForNpc(entry, npc))
+        evaluation.allowedForNpc = IsKnowledgeAllowedForNpc(entry, npc);
+
+        if (!evaluation.allowedForNpc)
         {
-            return 0;
+            evaluation.finalDecisionReason = "skipped_not_allowed_for_npc";
+            return evaluation;
         }
 
-        int score = 0;
+        evaluation.worldStateBlockReason = GetWorldStateBlockReason(entry, worldState, relevantEvents);
 
-        if (npc != null && ContainsIgnoreCase(entry.knownByNpcIds, npc.npcId))
+        if (!string.IsNullOrEmpty(evaluation.worldStateBlockReason))
         {
-            score += 3;
-        }
-        else if (IsPublicKnowledge(entry))
-        {
-            score += 1;
+            evaluation.finalDecisionReason = "skipped_no_strong_activation";
+            return evaluation;
         }
 
-        if (npc != null && HasOverlap(entry.tags, npc.knowledgeTags))
+        evaluation.messageMatches = GetPlayerMessageEntryMatches(playerMessage, entry);
+        evaluation.visibleStateMatches = GetPlayerVisibleStateMatches(entry, playerState);
+        evaluation.npcStateMatches = GetNpcStateMatches(entry, npcState);
+        evaluation.worldEventMatches = GetRelevantEventMatches(entry, relevantEvents);
+        evaluation.worldStateMatches = GetWorldStateMatches(entry, worldState, playerMessage, nearbyObjects, evaluation.messageMatches.Count > 0, evaluation.worldEventMatches.Count > 0);
+        evaluation.npcProfileTagMatches = GetOverlap(entry.tags, npc != null ? npc.knowledgeTags : null);
+
+        evaluation.hasMessageActivation = evaluation.messageMatches.Count > 0;
+        evaluation.hasVisibleStateActivation = evaluation.visibleStateMatches.Count > 0;
+        evaluation.hasNpcStateActivation = evaluation.npcStateMatches.Count > 0;
+        evaluation.hasWorldEventActivation = evaluation.worldEventMatches.Count > 0;
+        evaluation.hasWorldStateActivation = evaluation.worldStateMatches.Count > 0;
+
+        evaluation.rawLocalMatches = GetLocalEnvironmentMatches(entry, nearbyObjects);
+        bool hasStrongActivationWithoutLocal =
+            evaluation.hasMessageActivation ||
+            evaluation.hasVisibleStateActivation ||
+            evaluation.hasNpcStateActivation ||
+            evaluation.hasWorldEventActivation ||
+            evaluation.hasWorldStateActivation;
+        evaluation.hasLocalActivation = evaluation.rawLocalMatches.Count > 0 &&
+            (hasStrongActivationWithoutLocal || PlayerMessageRefersToLocalEnvironment(playerMessage, nearbyObjects));
+
+        if (evaluation.hasMessageActivation)
         {
-            score += 2;
+            evaluation.score += 8;
         }
 
-        if (HasRelatedNearbyObject(entry, nearbyObjects))
+        if (evaluation.hasVisibleStateActivation)
         {
-            score += 2;
+            evaluation.score += 8;
         }
 
-        if (HasNearbyObjectTagOverlap(entry, nearbyObjects))
+        if (evaluation.hasWorldEventActivation)
         {
-            score += 1;
+            evaluation.score += 8;
         }
 
-        if (PlayerMessageContainsAnyTag(playerMessage, entry.tags))
+        if (evaluation.hasNpcStateActivation)
         {
-            score += 1;
+            evaluation.score += 7;
         }
 
-        if (PlayerMessageContainsTitlePart(playerMessage, entry.title))
+        if (evaluation.hasWorldStateActivation)
         {
-            score += 1;
+            evaluation.score += 6;
         }
 
-        if (PlayerVisibleStateMatches(entry, playerState))
+        if (evaluation.hasLocalActivation)
         {
-            score += 2;
+            evaluation.score += 3;
         }
 
-        if (WorldStateMatches(entry, worldState))
+        if (evaluation.npcProfileTagMatches.Count > 0)
         {
-            score += 2;
+            evaluation.score += 2;
         }
 
-        if (NpcStateMatches(entry, npcState))
+        int importanceScore = Mathf.Clamp(entry.importance, 0, 1);
+        evaluation.importanceScore = importanceScore;
+        evaluation.score += importanceScore;
+
+        if (!evaluation.hasStrongActivation)
         {
-            score += 1;
+            evaluation.finalDecisionReason = "skipped_no_strong_activation";
+        }
+        else if (evaluation.score < KnowledgeRetrievalThreshold)
+        {
+            evaluation.finalDecisionReason = "skipped_below_threshold";
+        }
+        else
+        {
+            evaluation.finalDecisionReason = "retrieved_allowed_and_activated";
         }
 
-        if (RelevantEventsMatch(entry, relevantEvents))
-        {
-            score += 2;
-        }
-
-        score += Mathf.Max(0, entry.importance);
-        return score;
+        return evaluation;
     }
 
     private DebugKnowledgeRetrievalEntry BuildDebugKnowledgeRetrievalEntry(
@@ -359,165 +386,129 @@ public class ContextRetriever : MonoBehaviour
         if (entry == null)
         {
             debugEntry.skippedReasons.Add("KnowledgeEntry is null.");
-            debugEntry.finalDecisionReason = "SKIPPED: KnowledgeEntry is null.";
+            debugEntry.finalDecisionReason = "skipped_below_threshold";
             return debugEntry;
         }
 
-        int score = 0;
         string npcId = npc != null ? npc.npcId : null;
+        KnowledgeRetrievalEvaluation evaluation = EvaluateKnowledgeEntry(entry, npc, nearbyObjects, playerMessage, playerState, worldState, npcState, relevantEvents);
 
-        if (!IsKnowledgeAllowedForNpc(entry, npc))
+        debugEntry.allowedForNpc = evaluation.allowedForNpc;
+        debugEntry.hasMessageActivation = evaluation.hasMessageActivation;
+        debugEntry.hasVisibleStateActivation = evaluation.hasVisibleStateActivation;
+        debugEntry.hasNpcStateActivation = evaluation.hasNpcStateActivation;
+        debugEntry.hasWorldEventActivation = evaluation.hasWorldEventActivation;
+        debugEntry.hasWorldStateActivation = evaluation.hasWorldStateActivation;
+        debugEntry.hasLocalActivation = evaluation.hasLocalActivation;
+        debugEntry.hasStrongActivation = evaluation.hasStrongActivation;
+        debugEntry.finalScore = evaluation.score;
+        debugEntry.finalDecisionReason = evaluation.finalDecisionReason;
+
+        if (!evaluation.allowedForNpc)
         {
-            debugEntry.skippedReasons.Add("KnowledgeEntry is private to another NPC. Empty knownByNpcIds means public; otherwise current npcId must be listed.");
-            debugEntry.finalScore = 0;
-            debugEntry.finalDecisionReason = "SKIPPED: knowledge access control rejected this entry for current NPC '" + SafeDebugText(npcId) + "'.";
+            debugEntry.skippedReasons.Add("Access gate failed: knownByNpcIds is " + FormatDebugList(entry.knownByNpcIds) + " and current npcId is '" + SafeDebugText(npcId) + "'.");
             return debugEntry;
         }
 
         if (npc != null && ContainsIgnoreCase(entry.knownByNpcIds, npc.npcId))
         {
-            score += 3;
-            debugEntry.retrievalReasons.Add("knownByNpcIds contains current NPC id '" + SafeDebugText(npc.npcId) + "' (+3).");
+            debugEntry.retrievalReasons.Add("Access gate passed: knownByNpcIds contains current NPC id '" + SafeDebugText(npc.npcId) + "'.");
         }
         else if (IsPublicKnowledge(entry))
         {
-            score += 1;
-            debugEntry.retrievalReasons.Add("knownByNpcIds is empty or contains public, so this is public knowledge (+1).");
+            debugEntry.retrievalReasons.Add("Access gate passed: knownByNpcIds is empty/public, so this is public knowledge.");
         }
-        else if (npc == null)
+
+        if (!string.IsNullOrEmpty(evaluation.worldStateBlockReason))
         {
-            debugEntry.skippedReasons.Add("knownByNpcIds could not be checked because current NPC is not available.");
+            debugEntry.skippedReasons.Add(evaluation.worldStateBlockReason);
+        }
+
+        if (evaluation.hasMessageActivation)
+        {
+            debugEntry.retrievalReasons.Add("message_activation: true - player message matched entry tags/title/related objects: " + FormatDebugList(evaluation.messageMatches) + " (+8).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("knownByNpcIds does not contain current NPC id '" + SafeDebugText(npcId) + "'.");
+            debugEntry.skippedReasons.Add("message_activation: false - player message did not match entry tags, significant title words, or relatedObjectIds.");
         }
 
-        List<string> tagOverlap = GetOverlap(entry.tags, npc != null ? npc.knowledgeTags : null);
-
-        if (tagOverlap.Count > 0)
+        if (evaluation.hasVisibleStateActivation)
         {
-            score += 2;
-            debugEntry.retrievalReasons.Add("KnowledgeEntry.tags overlaps NPCProfile.knowledgeTags: " + FormatDebugList(tagOverlap) + " (+2).");
-        }
-        else if (npc == null)
-        {
-            debugEntry.skippedReasons.Add("NPCProfile.knowledgeTags could not be checked because current NPC is not available.");
+            debugEntry.retrievalReasons.Add("visible_state_activation: true - visible player state matched entry tags/title: " + FormatDebugList(evaluation.visibleStateMatches) + " (+8).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("KnowledgeEntry.tags has no overlap with NPCProfile.knowledgeTags.");
+            debugEntry.skippedReasons.Add("visible_state_activation: false - outfit, held item, reputation, and visible tags did not match this entry.");
         }
 
-        List<string> relatedObjectMatches = GetRelatedNearbyObjectMatches(entry, nearbyObjects);
-
-        if (relatedObjectMatches.Count > 0)
+        if (evaluation.hasNpcStateActivation)
         {
-            score += 2;
-            debugEntry.retrievalReasons.Add("relatedObjectIds matches nearby SceneContextObject.objectId: " + FormatDebugList(relatedObjectMatches) + " (+2).");
+            debugEntry.retrievalReasons.Add("npc_state_activation: true - NPC mood/trust/personal events matched entry tags/title: " + FormatDebugList(evaluation.npcStateMatches) + " (+7).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("relatedObjectIds does not match any nearby SceneContextObject.objectId.");
+            debugEntry.skippedReasons.Add("npc_state_activation: false - NPC state did not match this entry.");
         }
 
-        List<string> nearbyTagOverlap = GetNearbyObjectTagOverlap(entry, nearbyObjects);
-
-        if (nearbyTagOverlap.Count > 0)
+        if (evaluation.hasWorldEventActivation)
         {
-            score += 1;
-            debugEntry.retrievalReasons.Add("KnowledgeEntry.tags overlaps nearby SceneContextObject tags/state facts: " + FormatDebugList(nearbyTagOverlap) + " (+1).");
+            debugEntry.retrievalReasons.Add("world_event_activation: true - relevant public/global/targeted event matched entry tags/title: " + FormatDebugList(evaluation.worldEventMatches) + " (+8).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("KnowledgeEntry.tags does not overlap nearby SceneContextObject tags/state facts.");
+            debugEntry.skippedReasons.Add("world_event_activation: false - recent relevant events did not match this entry.");
         }
 
-        List<string> messageTagMatches = GetPlayerMessageMatchingTags(playerMessage, entry.tags);
-
-        if (messageTagMatches.Count > 0)
+        if (evaluation.hasWorldStateActivation)
         {
-            score += 1;
-            debugEntry.retrievalReasons.Add("player message contains tag: " + FormatDebugList(messageTagMatches) + " (+1).");
+            debugEntry.retrievalReasons.Add("world_state_activation: true - WorldState directly matched and the message/event made that state relevant: " + FormatDebugList(evaluation.worldStateMatches) + " (+6).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("player message does not contain any KnowledgeEntry.tags.");
+            debugEntry.skippedReasons.Add("world_state_activation: false - WorldState alone did not directly activate this entry.");
         }
 
-        List<string> titleWordMatches = GetPlayerMessageMatchingTitleWords(playerMessage, entry.title);
-
-        if (titleWordMatches.Count > 0)
+        if (evaluation.hasLocalActivation)
         {
-            score += 1;
-            debugEntry.retrievalReasons.Add("player message contains title word: " + FormatDebugList(titleWordMatches) + " (+1).");
+            debugEntry.retrievalReasons.Add("local_activation: true - nearby SceneContextObject matched and the player referred to the place or another strong source activated the entry: " + FormatDebugList(evaluation.rawLocalMatches) + " (+3).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("player message does not contain a KnowledgeEntry.title word longer than 3 characters.");
+            debugEntry.skippedReasons.Add("local_activation: false - no local match, or location matched without a place reference/strong activation.");
         }
 
-        List<string> visibleMatches = GetPlayerVisibleStateMatches(entry, playerState);
-
-        if (visibleMatches.Count > 0)
+        if (evaluation.npcProfileTagMatches.Count > 0)
         {
-            score += 2;
-            debugEntry.retrievalReasons.Add("visible player state matches KnowledgeEntry tags/title: " + FormatDebugList(visibleMatches) + " (+2).");
+            debugEntry.retrievalReasons.Add("NPCProfile.knowledgeTags overlap: " + FormatDebugList(evaluation.npcProfileTagMatches) + " (+2, not a strong activation source).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("visible player state does not match KnowledgeEntry tags/title.");
+            debugEntry.skippedReasons.Add("NPCProfile.knowledgeTags did not overlap this entry, or no NPC profile was available.");
         }
 
-        List<string> worldMatches = GetWorldStateMatches(entry, worldState);
-
-        if (worldMatches.Count > 0)
+        if (evaluation.importanceScore > 0)
         {
-            score += 2;
-            debugEntry.retrievalReasons.Add("WorldState current/global facts match KnowledgeEntry tags/title: " + FormatDebugList(worldMatches) + " (+2).");
+            debugEntry.retrievalReasons.Add("importance contributes +" + evaluation.importanceScore + " (capped at +1, not a strong activation source).");
         }
         else
         {
-            debugEntry.skippedReasons.Add("WorldState current/global facts do not match KnowledgeEntry tags/title.");
+            debugEntry.skippedReasons.Add("importance contributes +0.");
         }
 
-        List<string> npcStateMatches = GetNpcStateMatches(entry, npcState);
-
-        if (npcStateMatches.Count > 0)
+        if (!evaluation.hasStrongActivation)
         {
-            score += 1;
-            debugEntry.retrievalReasons.Add("NPCState mood/trust/personal events match KnowledgeEntry tags/title: " + FormatDebugList(npcStateMatches) + " (+1).");
+            debugEntry.skippedReasons.Add("Final gate failed: no strong activation source. Access, NPC identity, local environment, and importance cannot retrieve by themselves.");
+        }
+        else if (evaluation.score < KnowledgeRetrievalThreshold)
+        {
+            debugEntry.skippedReasons.Add("Final gate failed: score " + evaluation.score + " is below threshold " + KnowledgeRetrievalThreshold + ".");
         }
         else
         {
-            debugEntry.skippedReasons.Add("NPCState did not match KnowledgeEntry tags/title.");
+            debugEntry.retrievalReasons.Add("Final gate passed: allowed, strongly activated, and score " + evaluation.score + " >= " + KnowledgeRetrievalThreshold + ".");
         }
 
-        List<string> eventMatches = GetRelevantEventMatches(entry, relevantEvents);
-
-        if (eventMatches.Count > 0)
-        {
-            score += 2;
-            debugEntry.retrievalReasons.Add("Recent relevant events match KnowledgeEntry tags/title: " + FormatDebugList(eventMatches) + " (+2).");
-        }
-        else
-        {
-            debugEntry.skippedReasons.Add("Recent relevant events did not match KnowledgeEntry tags/title.");
-        }
-
-        int importanceScore = Mathf.Max(0, entry.importance);
-
-        if (importanceScore > 0)
-        {
-            score += importanceScore;
-            debugEntry.retrievalReasons.Add("importance contributes +" + importanceScore + ".");
-        }
-        else
-        {
-            debugEntry.skippedReasons.Add("importance is " + entry.importance + ", so it contributes +0.");
-        }
-
-        debugEntry.finalScore = score;
         return debugEntry;
     }
 
@@ -635,7 +626,7 @@ public class ContextRetriever : MonoBehaviour
 
                 if (entry != null)
                 {
-                    AddReason(reasons, "source: npc_allowed_knowledge - KnowledgeEntry '" + SafeDebugText(entry.id) + "' passed knownByNpcIds access rules.");
+                    AddReason(reasons, "source: retrieved_knowledge - KnowledgeEntry '" + SafeDebugText(entry.id) + "' passed access, strong activation, threshold, and ranking rules.");
                 }
             }
         }
@@ -708,12 +699,59 @@ public class ContextRetriever : MonoBehaviour
         return ContainsIgnoreCase(entry.knownByNpcIds, "public") || ContainsIgnoreCase(entry.knownByNpcIds, "all");
     }
 
-    private static bool HasNearbyObjectTagOverlap(KnowledgeEntry entry, List<SceneContextObject> nearbyObjects)
+    private static string GetWorldStateBlockReason(KnowledgeEntry entry, WorldState worldState, List<WorldEvent> relevantEvents)
     {
-        return GetNearbyObjectTagOverlap(entry, nearbyObjects).Count > 0;
+        if (entry == null || worldState == null)
+        {
+            return string.Empty;
+        }
+
+        bool hasBellFoundEvent = HasBellFoundEvent(relevantEvents);
+
+        if ((ContainsIgnoreCase(entry.tags, "bell_found") || ContainsIgnoreCase(entry.tags, "resolved")) &&
+            worldState.churchBellMissing &&
+            !hasBellFoundEvent)
+        {
+            return "WorldState gate: bell_found/resolution knowledge is inactive while churchBellMissing is true and no recent bell_found event is relevant.";
+        }
+
+        if (ContainsIgnoreCase(entry.tags, "missing_bell") &&
+            (!worldState.churchBellMissing || hasBellFoundEvent))
+        {
+            return "WorldState gate: missing_bell tension knowledge is inactive because the bell has been found or a bell_found event is relevant.";
+        }
+
+        return string.Empty;
     }
 
-    private static List<string> GetNearbyObjectTagOverlap(KnowledgeEntry entry, List<SceneContextObject> nearbyObjects)
+    private static bool HasBellFoundEvent(List<WorldEvent> relevantEvents)
+    {
+        if (relevantEvents == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < relevantEvents.Count; i++)
+        {
+            WorldEvent worldEvent = relevantEvents[i];
+
+            if (worldEvent == null)
+            {
+                continue;
+            }
+
+            if (TextContainsSearchTerm(worldEvent.eventType, "bell_found") ||
+                TextContainsSearchTerm(worldEvent.description, "bell found") ||
+                TextContainsSearchTerm(worldEvent.description, "bell has been found"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static List<string> GetLocalEnvironmentMatches(KnowledgeEntry entry, List<SceneContextObject> nearbyObjects)
     {
         List<string> result = new List<string>();
 
@@ -731,18 +769,19 @@ public class ContextRetriever : MonoBehaviour
                 continue;
             }
 
+            if (!string.IsNullOrEmpty(contextObject.objectId) && ContainsIgnoreCase(entry.relatedObjectIds, contextObject.objectId) && !ContainsIgnoreCase(result, contextObject.objectId))
+            {
+                result.Add(contextObject.objectId);
+            }
+
             AddEntryMatchesFromTerms(result, entry, contextObject.tags);
             AddEntryMatchesFromTerms(result, entry, contextObject.stateFacts);
+            AddEntryMatchFromTerm(result, entry, contextObject.objectId);
             AddEntryMatchFromTerm(result, entry, contextObject.objectType);
             AddEntryMatchFromTerm(result, entry, contextObject.displayName);
         }
 
         return result;
-    }
-
-    private static bool PlayerVisibleStateMatches(KnowledgeEntry entry, PlayerState playerState)
-    {
-        return GetPlayerVisibleStateMatches(entry, playerState).Count > 0;
     }
 
     private static List<string> GetPlayerVisibleStateMatches(KnowledgeEntry entry, PlayerState playerState)
@@ -761,41 +800,50 @@ public class ContextRetriever : MonoBehaviour
         return result;
     }
 
-    private static bool WorldStateMatches(KnowledgeEntry entry, WorldState worldState)
+    private static List<string> GetWorldStateMatches(
+        KnowledgeEntry entry,
+        WorldState worldState,
+        string playerMessage,
+        List<SceneContextObject> nearbyObjects,
+        bool hasMessageActivation,
+        bool hasWorldEventActivation)
     {
-        return GetWorldStateMatches(entry, worldState).Count > 0;
-    }
-
-    private static List<string> GetWorldStateMatches(KnowledgeEntry entry, WorldState worldState)
-    {
-        List<string> result = new List<string>();
+        List<string> rawMatches = new List<string>();
 
         if (entry == null || worldState == null)
         {
-            return result;
+            return rawMatches;
         }
 
-        AddEntryMatchFromTerm(result, entry, worldState.villageMood);
-        AddEntryMatchFromTerm(result, entry, worldState.currentEvent);
-        AddEntryMatchesFromTerms(result, entry, worldState.globalFacts);
+        AddEntryMatchFromTerm(rawMatches, entry, worldState.villageMood);
+        AddEntryMatchFromTerm(rawMatches, entry, worldState.currentEvent);
+        AddEntryMatchesFromTerms(rawMatches, entry, worldState.globalFacts);
 
         if (worldState.churchBellMissing)
         {
-            AddEntryMatchFromTerm(result, entry, "bell_missing");
-            AddEntryMatchFromTerm(result, entry, "missing bell");
+            AddEntryMatchFromTerm(rawMatches, entry, "missing_bell");
+            AddEntryMatchFromTerm(rawMatches, entry, "bell_missing");
+            AddEntryMatchFromTerm(rawMatches, entry, "missing bell");
         }
         else
         {
-            AddEntryMatchFromTerm(result, entry, "bell_found");
-            AddEntryMatchFromTerm(result, entry, "bell found");
+            AddEntryMatchFromTerm(rawMatches, entry, "bell_found");
+            AddEntryMatchFromTerm(rawMatches, entry, "bell found");
+            AddEntryMatchFromTerm(rawMatches, entry, "found");
+            AddEntryMatchFromTerm(rawMatches, entry, "calm");
         }
 
-        return result;
-    }
+        if (rawMatches.Count == 0)
+        {
+            return rawMatches;
+        }
 
-    private static bool NpcStateMatches(KnowledgeEntry entry, NPCState npcState)
-    {
-        return GetNpcStateMatches(entry, npcState).Count > 0;
+        if (hasMessageActivation || hasWorldEventActivation || PlayerMessageRefersToWorldState(playerMessage, worldState, entry) || PlayerMessageRefersToLocalEnvironment(playerMessage, nearbyObjects))
+        {
+            return rawMatches;
+        }
+
+        return new List<string>();
     }
 
     private static List<string> GetNpcStateMatches(KnowledgeEntry entry, NPCState npcState)
@@ -810,12 +858,48 @@ public class ContextRetriever : MonoBehaviour
         AddEntryMatchFromTerm(result, entry, npcState.mood);
         AddEntryMatchFromTerm(result, entry, npcState.trustToPlayer);
         AddEntryMatchesFromTerms(result, entry, npcState.personalEvents);
-        return result;
-    }
 
-    private static bool RelevantEventsMatch(KnowledgeEntry entry, List<WorldEvent> relevantEvents)
-    {
-        return GetRelevantEventMatches(entry, relevantEvents).Count > 0;
+        if (!string.IsNullOrEmpty(npcState.trustToPlayer) &&
+            !string.Equals(npcState.trustToPlayer, "medium", System.StringComparison.OrdinalIgnoreCase))
+        {
+            AddEntryMatchFromTerm(result, entry, "trust");
+        }
+
+        if (TextContainsSearchTerm(npcState.mood, "angry") || TextContainsSearchTerm(npcState.mood, "hostile"))
+        {
+            AddEntryMatchFromTerm(result, entry, "angry");
+            AddEntryMatchFromTerm(result, entry, "hostile");
+            AddEntryMatchFromTerm(result, entry, "aggression");
+            AddEntryMatchFromTerm(result, entry, "trust");
+        }
+
+        if (npcState.personalEvents != null && npcState.personalEvents.Count > 0)
+        {
+            AddEntryMatchFromTerm(result, entry, "personal_event");
+        }
+
+        for (int i = 0; npcState.personalEvents != null && i < npcState.personalEvents.Count; i++)
+        {
+            string personalEvent = npcState.personalEvents[i];
+
+            if (TextContainsSearchTerm(personalEvent, "throw") ||
+                TextContainsSearchTerm(personalEvent, "threw") ||
+                TextContainsSearchTerm(personalEvent, "hit") ||
+                TextContainsSearchTerm(personalEvent, "attack") ||
+                TextContainsSearchTerm(personalEvent, "aggression") ||
+                TextContainsSearchTerm(personalEvent, "aggressive") ||
+                TextContainsSearchTerm(personalEvent, "violence") ||
+                TextContainsSearchTerm(personalEvent, "violent"))
+            {
+                AddEntryMatchFromTerm(result, entry, "aggression");
+                AddEntryMatchFromTerm(result, entry, "angry");
+                AddEntryMatchFromTerm(result, entry, "hostile");
+                AddEntryMatchFromTerm(result, entry, "trust");
+                AddEntryMatchFromTerm(result, entry, "personal_event");
+            }
+        }
+
+        return result;
     }
 
     private static List<string> GetRelevantEventMatches(KnowledgeEntry entry, List<WorldEvent> relevantEvents)
@@ -839,6 +923,30 @@ public class ContextRetriever : MonoBehaviour
             AddEntryMatchFromTerm(result, entry, worldEvent.eventType);
             AddEntryMatchFromTerm(result, entry, worldEvent.description);
             AddEntryMatchFromTerm(result, entry, worldEvent.locationObjectId);
+
+            if (TextContainsSearchTerm(worldEvent.eventType, "bell_found") ||
+                TextContainsSearchTerm(worldEvent.description, "bell found") ||
+                TextContainsSearchTerm(worldEvent.description, "bell has been found"))
+            {
+                AddEntryMatchFromTerm(result, entry, "bell_found");
+                AddEntryMatchFromTerm(result, entry, "found");
+                AddEntryMatchFromTerm(result, entry, "calm");
+            }
+
+            if (TextContainsSearchTerm(worldEvent.eventType, "aggression") ||
+                TextContainsSearchTerm(worldEvent.description, "aggression") ||
+                TextContainsSearchTerm(worldEvent.description, "attack") ||
+                TextContainsSearchTerm(worldEvent.description, "throw") ||
+                TextContainsSearchTerm(worldEvent.description, "threw") ||
+                TextContainsSearchTerm(worldEvent.description, "hit"))
+            {
+                AddEntryMatchFromTerm(result, entry, "aggression");
+                AddEntryMatchFromTerm(result, entry, "angry");
+                AddEntryMatchFromTerm(result, entry, "hostile");
+                AddEntryMatchFromTerm(result, entry, "trust");
+                AddEntryMatchFromTerm(result, entry, "personal_event");
+            }
+
         }
 
         return result;
@@ -921,6 +1029,155 @@ public class ContextRetriever : MonoBehaviour
         return false;
     }
 
+    private static List<string> GetPlayerMessageEntryMatches(string playerMessage, KnowledgeEntry entry)
+    {
+        List<string> result = new List<string>();
+
+        if (entry == null || string.IsNullOrEmpty(playerMessage))
+        {
+            return result;
+        }
+
+        AddTermsAppearingInText(result, playerMessage, entry.tags);
+        AddTermsAppearingInText(result, playerMessage, entry.relatedObjectIds);
+        AddSignificantTitleWordsAppearingInText(result, playerMessage, entry.title);
+        return result;
+    }
+
+    private static void AddTermsAppearingInText(List<string> result, string text, List<string> terms)
+    {
+        if (result == null || string.IsNullOrEmpty(text) || terms == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < terms.Count; i++)
+        {
+            string term = terms[i];
+
+            if (!string.IsNullOrEmpty(term) && TextContainsExactSearchTerm(text, term) && !ContainsIgnoreCase(result, term))
+            {
+                result.Add(term);
+            }
+        }
+    }
+
+    private static void AddSignificantTitleWordsAppearingInText(List<string> result, string text, string title)
+    {
+        if (result == null || string.IsNullOrEmpty(text) || string.IsNullOrEmpty(title))
+        {
+            return;
+        }
+
+        string[] words = NormalizeSearchText(title).Split(' ');
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            string word = words[i].Trim();
+
+            if (word.Length > 3 && TextContainsSearchTerm(text, word) && !ContainsIgnoreCase(result, word))
+            {
+                result.Add(word);
+            }
+        }
+    }
+
+    private static bool PlayerMessageRefersToLocalEnvironment(string playerMessage, List<SceneContextObject> nearbyObjects)
+    {
+        if (string.IsNullOrEmpty(playerMessage))
+        {
+            return false;
+        }
+
+        if (TextContainsSearchTerm(playerMessage, "here") ||
+            TextContainsSearchTerm(playerMessage, "this place") ||
+            TextContainsSearchTerm(playerMessage, "around here") ||
+            TextContainsSearchTerm(playerMessage, "near here") ||
+            TextContainsSearchTerm(playerMessage, "nearby") ||
+            TextContainsSearchTerm(playerMessage, "near") ||
+            TextContainsSearchTerm(playerMessage, "where are we"))
+        {
+            return true;
+        }
+
+        if (nearbyObjects == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < nearbyObjects.Count; i++)
+        {
+            SceneContextObject contextObject = nearbyObjects[i];
+
+            if (contextObject == null)
+            {
+                continue;
+            }
+
+            if (TextContainsSearchTerm(playerMessage, contextObject.objectId) ||
+                TextContainsSearchTerm(playerMessage, contextObject.displayName) ||
+                TextContainsSearchTerm(playerMessage, contextObject.objectType) ||
+                AnyTermAppearsInText(playerMessage, contextObject.tags))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool PlayerMessageRefersToWorldState(string playerMessage, WorldState worldState, KnowledgeEntry entry)
+    {
+        if (string.IsNullOrEmpty(playerMessage) || worldState == null)
+        {
+            return false;
+        }
+
+        if (entry != null &&
+            (AnyTermAppearsInText(playerMessage, entry.tags) ||
+            AnyTermAppearsInText(playerMessage, entry.relatedObjectIds) ||
+            PlayerMessageContainsTitlePart(playerMessage, entry.title)))
+        {
+            return true;
+        }
+
+        if (TextContainsSearchTerm(playerMessage, worldState.currentEvent) ||
+            TextContainsSearchTerm(playerMessage, worldState.villageMood) ||
+            AnyTermAppearsInText(playerMessage, worldState.globalFacts))
+        {
+            return true;
+        }
+
+        return TextContainsSearchTerm(playerMessage, "what now") ||
+            TextContainsSearchTerm(playerMessage, "now what") ||
+            TextContainsSearchTerm(playerMessage, "what happens now") ||
+            TextContainsSearchTerm(playerMessage, "problem") ||
+            TextContainsSearchTerm(playerMessage, "problems") ||
+            TextContainsSearchTerm(playerMessage, "trouble") ||
+            TextContainsSearchTerm(playerMessage, "wrong") ||
+            TextContainsSearchTerm(playerMessage, "happened") ||
+            TextContainsSearchTerm(playerMessage, "news") ||
+            TextContainsSearchTerm(playerMessage, "situation");
+    }
+
+    private static bool AnyTermAppearsInText(string text, List<string> terms)
+    {
+        if (string.IsNullOrEmpty(text) || terms == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < terms.Count; i++)
+        {
+            if (TextContainsSearchTerm(text, terms[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static List<string> SplitSearchTerms(string value)
     {
         List<string> result = new List<string>();
@@ -960,6 +1217,89 @@ public class ContextRetriever : MonoBehaviour
         }
 
         return text.ToLowerInvariant().Contains(value.Trim().ToLowerInvariant());
+    }
+
+    private static bool TextContainsSearchTerm(string text, string searchTerm)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(searchTerm))
+        {
+            return false;
+        }
+
+        string normalizedText = " " + NormalizeSearchText(text) + " ";
+        string normalizedTerm = NormalizeSearchText(searchTerm);
+
+        if (normalizedTerm.Length == 0 || normalizedTerm == "none" || normalizedTerm == "unknown")
+        {
+            return false;
+        }
+
+        if (normalizedText.Contains(" " + normalizedTerm + " "))
+        {
+            return true;
+        }
+
+        string[] words = normalizedTerm.Split(' ');
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            string word = words[i].Trim();
+
+            if (word.Length > 3 && normalizedText.Contains(" " + word + " "))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TextContainsExactSearchTerm(string text, string searchTerm)
+    {
+        if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(searchTerm))
+        {
+            return false;
+        }
+
+        string normalizedText = " " + NormalizeSearchText(text) + " ";
+        string normalizedTerm = NormalizeSearchText(searchTerm);
+
+        if (normalizedTerm.Length == 0 || normalizedTerm == "none" || normalizedTerm == "unknown")
+        {
+            return false;
+        }
+
+        return normalizedText.Contains(" " + normalizedTerm + " ");
+    }
+
+    private static string NormalizeSearchText(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        string lower = value.Trim().ToLowerInvariant().Replace("_", " ").Replace("-", " ");
+        StringBuilder builder = new StringBuilder();
+        bool lastWasSpace = false;
+
+        for (int i = 0; i < lower.Length; i++)
+        {
+            char c = lower[i];
+
+            if (char.IsLetterOrDigit(c))
+            {
+                builder.Append(c);
+                lastWasSpace = false;
+            }
+            else if (!lastWasSpace)
+            {
+                builder.Append(' ');
+                lastWasSpace = true;
+            }
+        }
+
+        return builder.ToString().Trim();
     }
 
     private PlayerState FindPlayerState()
@@ -1234,15 +1574,75 @@ public class ContextRetriever : MonoBehaviour
         return string.IsNullOrEmpty(value) ? "None" : value;
     }
 
+    private int GetKnowledgeResultLimit()
+    {
+        if (maxKnowledgeEntries <= 0)
+        {
+            return 0;
+        }
+
+        return Mathf.Min(maxKnowledgeEntries, MaxRetrievedKnowledgeEntriesCap);
+    }
+
     public class DebugKnowledgeRetrievalEntry
     {
         public KnowledgeEntry entry;
         public int finalScore;
         public int rank = -1;
+        public bool allowedForNpc;
         public bool includedByRetriever;
+        public bool hasMessageActivation;
+        public bool hasVisibleStateActivation;
+        public bool hasNpcStateActivation;
+        public bool hasWorldEventActivation;
+        public bool hasWorldStateActivation;
+        public bool hasLocalActivation;
+        public bool hasStrongActivation;
         public string finalDecisionReason = string.Empty;
         public List<string> retrievalReasons = new List<string>();
         public List<string> skippedReasons = new List<string>();
+    }
+
+    private class KnowledgeRetrievalEvaluation
+    {
+        public bool allowedForNpc;
+        public bool hasMessageActivation;
+        public bool hasVisibleStateActivation;
+        public bool hasNpcStateActivation;
+        public bool hasWorldEventActivation;
+        public bool hasWorldStateActivation;
+        public bool hasLocalActivation;
+        public int score;
+        public int importanceScore;
+        public string finalDecisionReason = string.Empty;
+        public string worldStateBlockReason = string.Empty;
+        public List<string> messageMatches = new List<string>();
+        public List<string> visibleStateMatches = new List<string>();
+        public List<string> npcStateMatches = new List<string>();
+        public List<string> worldEventMatches = new List<string>();
+        public List<string> worldStateMatches = new List<string>();
+        public List<string> rawLocalMatches = new List<string>();
+        public List<string> npcProfileTagMatches = new List<string>();
+
+        public bool hasStrongActivation
+        {
+            get
+            {
+                return hasMessageActivation ||
+                    hasVisibleStateActivation ||
+                    hasNpcStateActivation ||
+                    hasWorldEventActivation ||
+                    hasWorldStateActivation;
+            }
+        }
+
+        public bool IsEligibleForRetrieval
+        {
+            get
+            {
+                return allowedForNpc && hasStrongActivation && score >= KnowledgeRetrievalThreshold;
+            }
+        }
     }
 
     private class ScoredKnowledgeEntry

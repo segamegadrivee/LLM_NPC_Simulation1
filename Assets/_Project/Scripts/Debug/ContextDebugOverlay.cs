@@ -361,11 +361,16 @@ public class ContextDebugOverlay : MonoBehaviour
 
         GUILayout.BeginVertical(GUI.skin.box);
         GUILayout.Label((debugEntry != null && debugEntry.includedByRetriever ? "RETRIEVED" : "SKIPPED") + ": " + KnowledgeTitle(entry), labelStyle);
-        DrawField("source", debugEntry != null && debugEntry.includedByRetriever ? "npc_allowed_knowledge" : "not_in_snapshot");
+        DrawField("allowed", debugEntry != null ? BoolText(debugEntry.allowedForNpc) : null);
+        DrawField("inContextSnapshot", entry != null && snapshot != null ? BoolText(SnapshotContainsKnowledge(snapshot, entry)) : null);
         DrawField("score", debugEntry != null ? debugEntry.finalScore.ToString() : null);
-        DrawField("allowed/skipped", debugEntry != null ? (debugEntry.includedByRetriever ? "allowed" : "skipped") : null);
-        DrawField("in ContextSnapshot", entry != null && snapshot != null ? (SnapshotContainsKnowledge(snapshot, entry) ? "true" : "false") : null);
-        DrawField("reason", debugEntry != null ? debugEntry.finalDecisionReason : null);
+        DrawField("message_activation", debugEntry != null ? BoolText(debugEntry.hasMessageActivation) : null);
+        DrawField("visible_state_activation", debugEntry != null ? BoolText(debugEntry.hasVisibleStateActivation) : null);
+        DrawField("npc_state_activation", debugEntry != null ? BoolText(debugEntry.hasNpcStateActivation) : null);
+        DrawField("world_event_activation", debugEntry != null ? BoolText(debugEntry.hasWorldEventActivation) : null);
+        DrawField("world_state_activation", debugEntry != null ? BoolText(debugEntry.hasWorldStateActivation) : null);
+        DrawField("local_activation", debugEntry != null ? BoolText(debugEntry.hasLocalActivation) : null);
+        DrawField("final reason", debugEntry != null ? debugEntry.finalDecisionReason : null);
         DrawField("knownByNpcIds", entry != null ? InlineList(entry.knownByNpcIds) : null);
         DrawField("relatedObjectIds", entry != null ? InlineList(entry.relatedObjectIds) : null);
         GUILayout.EndVertical();
@@ -375,9 +380,16 @@ public class ContextDebugOverlay : MonoBehaviour
     {
         GUILayout.BeginVertical(GUI.skin.box);
         GUILayout.Label("RETRIEVED: " + KnowledgeTitle(entry), labelStyle);
+        DrawField("allowed", null);
+        DrawField("inContextSnapshot", null);
         DrawField("score", null);
-        DrawField("allowed/skipped", null);
-        DrawField("reason", null);
+        DrawField("message_activation", null);
+        DrawField("visible_state_activation", null);
+        DrawField("npc_state_activation", null);
+        DrawField("world_event_activation", null);
+        DrawField("world_state_activation", null);
+        DrawField("local_activation", null);
+        DrawField("final reason", null);
         DrawField("knownByNpcIds", entry != null ? InlineList(entry.knownByNpcIds) : null);
         DrawField("relatedObjectIds", entry != null ? InlineList(entry.relatedObjectIds) : null);
         GUILayout.EndVertical();
@@ -807,6 +819,11 @@ public class ContextDebugOverlay : MonoBehaviour
     private static string SafeText(string value, string fallback)
     {
         return HasText(value) ? value.Trim() : fallback;
+    }
+
+    private static string BoolText(bool value)
+    {
+        return value ? "true" : "false";
     }
 
     private static string NormalizeStatusText(string value)

@@ -91,6 +91,7 @@ public static class ContextPipelineTracer
         data.worldState = data.snapshot != null && data.snapshot.worldState != null ? data.snapshot.worldState : ResolveWorldState();
         data.sceneObjects = UnityEngine.Object.FindObjectsByType<SceneContextObject>(FindObjectsSortMode.None);
         data.knowledgeEntries = GetKnowledgeEntries(data.contextRetriever);
+        data.knowledgeRetrievalEvidence = GetKnowledgeRetrievalEvidence(data);
         return data;
     }
 
@@ -108,6 +109,7 @@ public static class ContextPipelineTracer
         AppendCallChain(builder, data);
         AppendValuePropagationMatrix(builder, valueRows);
         AppendPromptAssemblyProof(builder, data);
+        AppendKnowledgeRetrievalDecisions(builder, data);
         AppendHardcodedVsDynamic(builder, data);
         AppendSourceCodeReferences(builder, data);
         AppendAutomaticMarkerTest(builder, valueRows);
@@ -253,6 +255,64 @@ public static class ContextPipelineTracer
         builder.AppendLine("Source: " + source);
         builder.AppendLine("Result:");
         builder.AppendLine(ExtractPromptSection(data.finalPrompt, sectionName, nextSectionName));
+        builder.AppendLine();
+    }
+
+    private static void AppendKnowledgeRetrievalDecisions(StringBuilder builder, TraceData data)
+    {
+        builder.AppendLine("=== KNOWLEDGE RETRIEVAL DECISIONS ===");
+
+        if (data.contextRetriever == null)
+        {
+            builder.AppendLine("NOT AVAILABLE: ContextRetriever was not found.");
+            builder.AppendLine();
+            return;
+        }
+
+        if (data.contextRetriever.knowledgeBase == null)
+        {
+            builder.AppendLine("NOT AVAILABLE: ContextRetriever.knowledgeBase is not assigned.");
+            builder.AppendLine();
+            return;
+        }
+
+        builder.AppendLine("KnowledgeBase: " + DescribeKnowledgeBase(data.contextRetriever));
+        builder.AppendLine("Decision model: allowed AND one strong activation AND score >= 7; local/NPC profile/importance do not activate by themselves.");
+
+        if (data.knowledgeRetrievalEvidence == null || data.knowledgeRetrievalEvidence.Count == 0)
+        {
+            builder.AppendLine("No KnowledgeEntry records were available.");
+            builder.AppendLine();
+            return;
+        }
+
+        List<ContextRetriever.DebugKnowledgeRetrievalEntry> entries = new List<ContextRetriever.DebugKnowledgeRetrievalEntry>(data.knowledgeRetrievalEvidence);
+        entries.Sort(CompareKnowledgeDebugEntries);
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            ContextRetriever.DebugKnowledgeRetrievalEntry evidence = entries[i];
+            KnowledgeEntry entry = evidence != null ? evidence.entry : null;
+
+            if (entry == null)
+            {
+                continue;
+            }
+
+            builder.AppendLine((evidence.includedByRetriever ? "RETRIEVED" : "SKIPPED") + ": " + SafeText(entry.id, "no id") + " / " + SafeText(entry.title, "no title"));
+            builder.AppendLine("- allowed: " + BoolText(evidence.allowedForNpc));
+            builder.AppendLine("- inContextSnapshot: " + BoolText(IndexOfKnowledgeEntry(data.snapshot, entry) >= 0));
+            builder.AppendLine("- score: " + evidence.finalScore);
+            builder.AppendLine("- activation sources:");
+            builder.AppendLine("  - message_activation: " + BoolText(evidence.hasMessageActivation));
+            builder.AppendLine("  - visible_state_activation: " + BoolText(evidence.hasVisibleStateActivation));
+            builder.AppendLine("  - npc_state_activation: " + BoolText(evidence.hasNpcStateActivation));
+            builder.AppendLine("  - world_event_activation: " + BoolText(evidence.hasWorldEventActivation));
+            builder.AppendLine("  - world_state_activation: " + BoolText(evidence.hasWorldStateActivation));
+            builder.AppendLine("  - local_activation: " + BoolText(evidence.hasLocalActivation));
+            builder.AppendLine("- final reason: " + SafeText(evidence.finalDecisionReason, "No decision reason recorded."));
+        }
+
         builder.AppendLine();
     }
 
@@ -845,6 +905,78 @@ public static class ContextPipelineTracer
         return contextRetriever.knowledgeBase.GetAllEntries();
     }
 
+    private static List<ContextRetriever.DebugKnowledgeRetrievalEntry> GetKnowledgeRetrievalEvidence(TraceData data)
+    {
+        if (data == null || data.contextRetriever == null || data.contextRetriever.knowledgeBase == null)
+        {
+            return new List<ContextRetriever.DebugKnowledgeRetrievalEntry>();
+        }
+
+        if (data.snapshot != null)
+        {
+            return data.contextRetriever.DebugExplainKnowledgeRetrieval(
+                data.snapshot.npcProfile,
+                data.snapshot.nearbyObjects,
+                data.snapshot.playerMessage,
+                data.snapshot.playerState,
+                data.snapshot.worldState,
+                data.snapshot.npcState,
+                data.snapshot.recentRelevantEvents);
+        }
+
+        if (data.currentNpc != null)
+        {
+            string playerMessage = string.IsNullOrEmpty(data.lastPlayerMessage) ? data.runtimeChatInput : data.lastPlayerMessage;
+            return data.contextRetriever.DebugExplainKnowledgeRetrieval(data.currentNpc, null, playerMessage);
+        }
+
+        return new List<ContextRetriever.DebugKnowledgeRetrievalEntry>();
+    }
+
+    private static int CompareKnowledgeDebugEntries(ContextRetriever.DebugKnowledgeRetrievalEntry a, ContextRetriever.DebugKnowledgeRetrievalEntry b)
+    {
+        if (a == null && b == null)
+        {
+            return 0;
+        }
+
+        if (a == null)
+        {
+            return 1;
+        }
+
+        if (b == null)
+        {
+            return -1;
+        }
+
+        int includedCompare = b.includedByRetriever.CompareTo(a.includedByRetriever);
+
+        if (includedCompare != 0)
+        {
+            return includedCompare;
+        }
+
+        int scoreCompare = b.finalScore.CompareTo(a.finalScore);
+
+        if (scoreCompare != 0)
+        {
+            return scoreCompare;
+        }
+
+        return string.Compare(GetKnowledgeSortName(a.entry), GetKnowledgeSortName(b.entry), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetKnowledgeSortName(KnowledgeEntry entry)
+    {
+        if (entry == null)
+        {
+            return string.Empty;
+        }
+
+        return !string.IsNullOrEmpty(entry.title) ? entry.title : entry.id;
+    }
+
     private static DialogueManager FindDialogueManager()
     {
         if (DialogueManager.Instance != null)
@@ -1159,6 +1291,11 @@ public static class ContextPipelineTracer
         return string.IsNullOrEmpty(value) || value.Trim().Length == 0 ? fallback : value;
     }
 
+    private static string BoolText(bool value)
+    {
+        return value ? "true" : "false";
+    }
+
     private static void SaveReport(string report)
     {
         try
@@ -1188,6 +1325,7 @@ public static class ContextPipelineTracer
         public WorldState worldState;
         public SceneContextObject[] sceneObjects = new SceneContextObject[0];
         public List<KnowledgeEntry> knowledgeEntries = new List<KnowledgeEntry>();
+        public List<ContextRetriever.DebugKnowledgeRetrievalEntry> knowledgeRetrievalEvidence = new List<ContextRetriever.DebugKnowledgeRetrievalEntry>();
         public ContextSnapshot snapshot;
         public string runtimeChatInput = string.Empty;
         public string lastPlayerMessage = string.Empty;
