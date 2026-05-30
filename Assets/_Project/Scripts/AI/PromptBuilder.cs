@@ -173,6 +173,7 @@ public static class PromptBuilder
     private static void BuildWorldStateSection(StringBuilder builder, ContextSnapshot snapshot)
     {
         builder.AppendLine("PUBLIC WORLD STATE");
+        builder.AppendLine("This is the current, authoritative situation known to everyone. If it says the bell is no longer missing, treat the bell as found and do not say it is still missing; older talk of it being missing is now history.");
         builder.AppendLine(snapshot.worldState != null ? snapshot.worldState.GetWorldStateText() : "None");
         builder.AppendLine();
     }
