@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09c965f81bcf24840bacc8833d8d8e42, type: 3}
-  m_Name: SO_FinalMvp_KnowledgeBase
+  m_Name: SO_BellScenario_KnowledgeBase
   m_EditorClassIdentifier: Assembly-CSharp::KnowledgeBase
   entries:
   - id: public_guard_armor_signal
     title: Guard armor as a social signal
     text: Guard armor makes villagers more careful around the player. Some see it
-      as protection and responsibility; others see it as pressure, authority, or possible
-      intimidation.
+      as protection and responsibility; others see it as pressure, authority, or
+      possible intimidation.
     tags:
     - armor
     - guard_armor
@@ -26,8 +26,8 @@ MonoBehaviour:
     - authority
     - trust
     - appearance
-    knownByNpcIds: []
     relatedObjectIds: []
+    knownByNpcIds: []
     importance: 5
   - id: public_dark_cloak_signal
     title: Dark cloak as a suspicious signal
@@ -41,8 +41,8 @@ MonoBehaviour:
     - secrecy
     - appearance
     - trust
-    knownByNpcIds: []
     relatedObjectIds: []
+    knownByNpcIds: []
     importance: 5
   - id: public_visible_weapon_signal
     title: Visible weapon as a threat signal
@@ -57,14 +57,14 @@ MonoBehaviour:
     - danger
     - threat
     - appearance
-    knownByNpcIds: []
     relatedObjectIds: []
+    knownByNpcIds: []
     importance: 4
   - id: public_aggressive_behavior_consequence
     title: Aggressive behavior reduces trust
     text: If the player acts aggressively toward someone, that target should become
-      less trusting and more hostile. Other NPCs should not know about it unless the
-      event is public or explicitly witnessed.
+      less trusting and more hostile. Other NPCs should not know about it unless
+      the event is public or explicitly witnessed.
     tags:
     - aggression
     - trust
@@ -72,8 +72,8 @@ MonoBehaviour:
     - angry
     - hostile
     - personal_event
-    knownByNpcIds: []
     relatedObjectIds: []
+    knownByNpcIds: []
     importance: 5
   - id: public_missing_bell_tension
     title: The missing bell creates village tension
@@ -86,9 +86,9 @@ MonoBehaviour:
     - village
     - tension
     - worried
-    knownByNpcIds: []
     relatedObjectIds:
     - church
+    knownByNpcIds: []
     importance: 4
   - id: public_bell_found_resolution
     title: Finding the bell changes the village mood
@@ -101,10 +101,10 @@ MonoBehaviour:
     - calm
     - village
     - church
-    knownByNpcIds: []
     relatedObjectIds:
     - church
     - old_storehouse
+    knownByNpcIds: []
     importance: 5
   - id: mira_reads_people_in_tavern
     title: Mira reads people in the tavern
@@ -121,10 +121,10 @@ MonoBehaviour:
     - cloak
     - suspicious
     - trust
-    knownByNpcIds:
-    - mira
     relatedObjectIds:
     - tavern
+    knownByNpcIds:
+    - mira
     importance: 5
   - id: borin_judges_actions_not_clothes
     title: Borin judges actions more than clothing
@@ -141,10 +141,10 @@ MonoBehaviour:
     - aggression
     - trust
     - actions
-    knownByNpcIds:
-    - borin
     relatedObjectIds:
     - forge
+    knownByNpcIds:
+    - borin
     importance: 5
   - id: eldric_connects_armor_with_responsibility
     title: Eldric connects armor with responsibility
@@ -158,11 +158,11 @@ MonoBehaviour:
     - armor
     - responsibility
     - village
-    knownByNpcIds:
-    - eldric
     relatedObjectIds:
     - village_square
     - church
+    knownByNpcIds:
+    - eldric
     importance: 5
   - id: anselm_cares_about_conduct_near_church
     title: Anselm cares about conduct near the church
@@ -177,8 +177,8 @@ MonoBehaviour:
     - weapon
     - cloak
     - bell
-    knownByNpcIds:
-    - anselm
     relatedObjectIds:
     - church
+    knownByNpcIds:
+    - anselm
     importance: 5

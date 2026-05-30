@@ -38,23 +38,65 @@ public class PlayerState : MonoBehaviour
         return builder.ToString();
     }
 
+    // Tags contributed by the currently equipped outfit, so the next equip can replace exactly them.
+    private readonly List<string> appliedOutfitTags = new List<string>();
+
+    // Backwards-compatible entry point. Outfit exclusivity and tags are owned by EquipOutfit.
     public void SetOutfit(string outfit)
     {
-        equippedOutfit = HasText(outfit) ? outfit.Trim() : "normal";
-        RefreshVisibleStatusTags();
+        EquipOutfit(outfit, null, null);
+    }
 
-        if (string.Equals(equippedOutfit, "guard_armor", System.StringComparison.OrdinalIgnoreCase))
+    // Equips a single outfit, always replacing any previously equipped outfit and its visible tags.
+    // outfitId    : e.g. "guard_armor" / "traveler_cloak" ("normal" or empty clears the outfit).
+    // roleOverride: optional; when provided it becomes the player's currentRole.
+    // outfitTags  : visible tags this outfit adds (the outfitId is usually included as one of them).
+    public void EquipOutfit(string outfitId, string roleOverride, List<string> outfitTags)
+    {
+        // Remove the tags the previous outfit added so two outfits can never be active at once.
+        for (int i = 0; i < appliedOutfitTags.Count; i++)
         {
-            AddCompletedAction("player_equipped_guard_armor");
+            RemoveControlledVisibleTag(appliedOutfitTags[i]);
         }
-        else if (string.Equals(equippedOutfit, "dark_cloak", System.StringComparison.OrdinalIgnoreCase))
+
+        appliedOutfitTags.Clear();
+
+        equippedOutfit = HasText(outfitId) ? outfitId.Trim() : "normal";
+
+        if (HasText(roleOverride))
         {
-            AddCompletedAction("player_equipped_dark_cloak");
+            currentRole = roleOverride.Trim();
         }
+
+        if (outfitTags != null)
+        {
+            for (int i = 0; i < outfitTags.Count; i++)
+            {
+                string tag = outfitTags[i];
+
+                if (!HasText(tag))
+                {
+                    continue;
+                }
+
+                string cleanTag = tag.Trim();
+                AddVisibleStatusTag(cleanTag);
+
+                if (!ContainsValue(appliedOutfitTags, cleanTag))
+                {
+                    appliedOutfitTags.Add(cleanTag);
+                }
+            }
+        }
+
+        AddCompletedAction("player_equipped_" + NormalizeToken(equippedOutfit));
+
+        // Refresh held-item / reputation derived tags (these are independent of the outfit).
+        RefreshVisibleStatusTags();
 
         if (debugLogs)
         {
-            Debug.Log("PlayerState outfit set to: " + equippedOutfit, this);
+            Debug.Log("PlayerState equipped outfit: " + equippedOutfit + " (role: " + currentRole + ")", this);
         }
     }
 
@@ -143,21 +185,10 @@ public class PlayerState : MonoBehaviour
             visibleStatusTags = new List<string>();
         }
 
-        RemoveControlledVisibleTag("armored");
-        RemoveControlledVisibleTag("authority_signal");
+        // Outfit tags are owned by EquipOutfit. This only manages held-item / reputation derived tags.
         RemoveControlledVisibleTag("armed");
         RemoveControlledVisibleTag("suspicious");
         RemoveControlledVisibleTag("carrying_sacred_object");
-
-        if (string.Equals(equippedOutfit, "guard_armor", System.StringComparison.OrdinalIgnoreCase))
-        {
-            AddVisibleStatusTag("armored");
-            AddVisibleStatusTag("authority_signal");
-        }
-        else if (string.Equals(equippedOutfit, "dark_cloak", System.StringComparison.OrdinalIgnoreCase))
-        {
-            AddVisibleStatusTag("suspicious");
-        }
 
         if (string.Equals(visibleHeldItem, "sword", System.StringComparison.OrdinalIgnoreCase) ||
             string.Equals(visibleHeldItem, "hammer", System.StringComparison.OrdinalIgnoreCase))
