@@ -1,52 +1,25 @@
 using UnityEngine;
 
-public class HiddenBellInteractable : MonoBehaviour
+// Public bell-found event trigger. Updates WorldState + WorldEventLog (and the player's visible
+// held item) so NPCs can reference the public event. State-only; no dialogue.
+public class HiddenBellInteractable : BaseInteractable
 {
     public string bellLocationId = "old_storehouse";
-    public string interactionText = "Inspect hidden bell";
-    public float interactionDistance = 3f;
-    public KeyCode interactKey = KeyCode.E;
     public bool setBellFragmentAsVisibleHeldItem = true;
-    public bool debugLogs = true;
 
-    private Transform playerTransform;
-    private PlayerState playerState;
-    private bool playerWasInRange;
     private bool found;
 
-    private void Awake()
+    private void Reset()
     {
-        FindPlayer();
+        interactionText = "Inspect hidden bell";
     }
 
-    private void Update()
+    protected override Color GizmoColor
     {
-        if (playerTransform == null || playerState == null)
-        {
-            FindPlayer();
-        }
-
-        if (playerTransform == null || playerState == null)
-        {
-            return;
-        }
-
-        bool playerInRange = Vector3.Distance(transform.position, playerTransform.position) <= interactionDistance;
-
-        if (debugLogs && playerInRange && !playerWasInRange)
-        {
-            Debug.Log(interactionText + ": " + gameObject.name, this);
-        }
-
-        playerWasInRange = playerInRange;
-
-        if (playerInRange && Input.GetKeyDown(interactKey))
-        {
-            Interact();
-        }
+        get { return new Color(0.9f, 0.8f, 0.2f, 0.45f); }
     }
 
-    public void Interact()
+    protected override void ApplyInteraction()
     {
         if (found)
         {
@@ -58,11 +31,6 @@ public class HiddenBellInteractable : MonoBehaviour
             return;
         }
 
-        if (playerState == null)
-        {
-            FindPlayer();
-        }
-
         WorldState worldState = ResolveWorldState();
 
         if (worldState != null)
@@ -70,16 +38,13 @@ public class HiddenBellInteractable : MonoBehaviour
             worldState.RegisterBellFound(bellLocationId);
         }
 
-        if (playerState != null)
-        {
-            playerState.AddKnownFact("player_found_missing_bell");
-            playerState.AddKnownFact("bell_found_in_" + NormalizeToken(bellLocationId));
-            playerState.AddCompletedAction("found_hidden_bell");
+        playerState.AddKnownFact("player_found_missing_bell");
+        playerState.AddKnownFact("bell_found_in_" + NormalizeToken(bellLocationId));
+        playerState.AddCompletedAction("found_hidden_bell");
 
-            if (setBellFragmentAsVisibleHeldItem)
-            {
-                playerState.SetVisibleHeldItem("bell_fragment");
-            }
+        if (setBellFragmentAsVisibleHeldItem)
+        {
+            playerState.SetVisibleHeldItem("bell_fragment");
         }
 
         WorldEventLog eventLog = ResolveWorldEventLog();
@@ -106,19 +71,6 @@ public class HiddenBellInteractable : MonoBehaviour
         }
     }
 
-    private void FindPlayer()
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-        if (player == null)
-        {
-            return;
-        }
-
-        playerTransform = player.transform;
-        playerState = player.GetComponent<PlayerState>();
-    }
-
     private WorldState ResolveWorldState()
     {
         if (WorldState.Instance != null)
@@ -129,32 +81,8 @@ public class HiddenBellInteractable : MonoBehaviour
         return FindFirstObjectByType<WorldState>();
     }
 
-    private WorldEventLog ResolveWorldEventLog()
-    {
-        if (WorldEventLog.Instance != null)
-        {
-            return WorldEventLog.Instance;
-        }
-
-        WorldEventLog eventLog = FindFirstObjectByType<WorldEventLog>();
-
-        if (eventLog != null)
-        {
-            return eventLog;
-        }
-
-        GameObject eventLogObject = new GameObject("WorldEventLog");
-        return eventLogObject.AddComponent<WorldEventLog>();
-    }
-
     private static string NormalizeToken(string value)
     {
         return string.IsNullOrEmpty(value) ? "unknown" : value.Trim().ToLowerInvariant().Replace(" ", "_");
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(0.9f, 0.8f, 0.2f, 0.45f);
-        Gizmos.DrawWireSphere(transform.position, interactionDistance);
     }
 }

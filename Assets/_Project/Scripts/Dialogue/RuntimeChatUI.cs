@@ -64,12 +64,11 @@ public class RuntimeChatUI : MonoBehaviour
 
         string npcName = dialogueManager.currentNpc != null ? dialogueManager.currentNpc.npcName : "NPC";
         string npcRole = dialogueManager.currentNpc != null ? dialogueManager.currentNpc.role : "Unknown role";
-        string llmLabel = string.IsNullOrEmpty(dialogueManager.CurrentLLMName) ? "None" : dialogueManager.CurrentLLMName;
 
         GUILayout.BeginHorizontal(GUI.skin.box);
         GUILayout.Label(npcName + " - " + npcRole, GUILayout.Height(22f));
         GUILayout.FlexibleSpace();
-        GUILayout.Label("LLM: " + llmLabel);
+        GUILayout.Label("Provider: " + GetProviderStatus(dialogueManager));
 
         if (GUILayout.Button("[DEBUG CONTEXT]", GUILayout.Width(150f), GUILayout.Height(22f)))
         {
@@ -189,22 +188,24 @@ public class RuntimeChatUI : MonoBehaviour
 
         GUILayout.EndHorizontal();
 
-        GUILayout.BeginHorizontal();
-
-        if (GUILayout.Button("[DUMP CONTEXT EVIDENCE]", GUILayout.Height(24f)))
-        {
-            ContextEvidenceDumper.DumpCurrentContextEvidence(dialogueManager);
-        }
-
-        if (GUILayout.Button("[TRACE CONTEXT PIPELINE]", GUILayout.Height(24f)))
-        {
-            ContextPipelineTracer.TraceCurrentContextPipeline(dialogueManager, inputText);
-        }
-
-        GUILayout.EndHorizontal();
-
+        // Heavy diagnostic tools are DEV-ONLY. They stay out of the normal MVP chat UI and only
+        // appear when showDebugControls is enabled in the inspector.
         if (showDebugControls)
         {
+            GUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("[DUMP CONTEXT EVIDENCE]", GUILayout.Height(24f)))
+            {
+                ContextEvidenceDumper.DumpCurrentContextEvidence(dialogueManager);
+            }
+
+            if (GUILayout.Button("[TRACE CONTEXT PIPELINE]", GUILayout.Height(24f)))
+            {
+                ContextPipelineTracer.TraceCurrentContextPipeline(dialogueManager, inputText);
+            }
+
+            GUILayout.EndHorizontal();
+
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Clear This NPC Memory", GUILayout.Width(170f)))
@@ -269,7 +270,29 @@ public class RuntimeChatUI : MonoBehaviour
 
     private float GetButtonRowsHeight()
     {
-        return PromptButtonRowHeight + EvidenceButtonRowHeight + (showDebugControls ? DebugButtonRowHeight : 0f);
+        // Always: the Close/Print/Copy/Show-Prompt row. DEV-only: the dump/trace and clear-memory rows.
+        return PromptButtonRowHeight + (showDebugControls ? EvidenceButtonRowHeight + DebugButtonRowHeight : 0f);
+    }
+
+    private static string GetProviderStatus(DialogueManager dialogueManager)
+    {
+        string intended = string.IsNullOrEmpty(dialogueManager.CurrentLLMName) ? "None" : dialogueManager.CurrentLLMName;
+
+        // If a response actually came back from a different provider than intended (e.g. a DEV mock
+        // fallback after an OpenAI failure), surface that so the demo never misreports its source.
+        if (dialogueManager.LastLLMResponseReceived)
+        {
+            string actual = dialogueManager.LastActualLLMProvider;
+
+            if (!string.IsNullOrEmpty(actual) &&
+                !string.Equals(actual, intended, System.StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(actual, "Pending", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return intended + " (actual: " + actual + ")";
+            }
+        }
+
+        return intended;
     }
 
     private GUIStyle WrappedLabelStyle

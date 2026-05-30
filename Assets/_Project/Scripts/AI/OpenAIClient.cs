@@ -22,7 +22,10 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
     private const string ResponsesEndpoint = "https://api.openai.com/v1/responses";
 
     public OpenAISettings settings;
-    public bool useMockOnFailure = true;
+
+    [Tooltip("DEV ONLY. When false (the MVP default), an OpenAI failure shows a clear error in the " +
+        "chat/log instead of silently returning scripted MockLLMClient text. Leave OFF for the diploma demo.")]
+    public bool useMockOnFailure = false;
     public MockLLMClient fallbackMockClient;
     public string LastActualProvider { get; private set; } = "None";
     public bool LastOpenAIRequestSucceeded { get; private set; }
@@ -309,18 +312,14 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
 
         if (useMockOnFailure && fallbackMockClient != null)
         {
-            LastActualProvider = "Mock";
+            LastActualProvider = "Mock (fallback)";
             LastOpenAIRequestSucceeded = false;
             LastMockFallbackUsed = true;
 
-            if (logError)
-            {
-                Debug.LogError(message + " Using MockLLMClient fallback.", this);
-            }
-            else
-            {
-                Debug.LogWarning(message + " Using MockLLMClient fallback.", this);
-            }
+            // DEV-ONLY path. This is not the MVP behaviour; the provider is labelled "Mock (fallback)"
+            // so the UI/debug overlay never silently passes scripted text off as a real OpenAI answer.
+            Debug.LogWarning(message + " DEV fallback: returning scripted MockLLMClient text. " +
+                "Disable useMockOnFailure for the diploma demo.", this);
 
             fallbackMockClient.SendPrompt(prompt, onResponse);
             return;

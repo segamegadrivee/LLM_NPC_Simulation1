@@ -46,6 +46,7 @@ public class ContextRetriever : MonoBehaviour
         snapshot.retrievedKnowledge = RetrieveRelevantKnowledge(npc, snapshot.nearbyObjects, playerMessage, snapshot.playerState, snapshot.worldState, snapshot.npcState, snapshot.recentRelevantEvents);
         snapshot.recentDialogueHistory = GetRecentDialogueHistory(npc);
         snapshot.contextSourceReasons = BuildContextSourceReasons(snapshot);
+        BuildContextAvailabilityEntries(snapshot);
 
         if (debugLogs)
         {
@@ -526,7 +527,9 @@ public class ContextRetriever : MonoBehaviour
 
         if (npcStateStore == null)
         {
-            GameObject storeObject = new GameObject("NPCStateStore");
+            Debug.LogWarning("ContextRetriever: no NPCStateStore in the scene. Creating a runtime fallback. " +
+                "Add a persistent NPCStateStore to GameSystems for the final scene.", this);
+            GameObject storeObject = new GameObject("NPCStateStore (runtime fallback)");
             npcStateStore = storeObject.AddComponent<NPCStateStore>();
         }
 
@@ -537,7 +540,9 @@ public class ContextRetriever : MonoBehaviour
 
         if (worldEventLog == null)
         {
-            GameObject eventLogObject = new GameObject("WorldEventLog");
+            Debug.LogWarning("ContextRetriever: no WorldEventLog in the scene. Creating a runtime fallback. " +
+                "Add a persistent WorldEventLog to GameSystems for the final scene.", this);
+            GameObject eventLogObject = new GameObject("WorldEventLog (runtime fallback)");
             worldEventLog = eventLogObject.AddComponent<WorldEventLog>();
         }
     }
@@ -637,6 +642,315 @@ public class ContextRetriever : MonoBehaviour
         }
 
         return reasons;
+    }
+
+    // Builds the Context Availability Layer: a flat, explainable list of every considered piece of
+    // context with its source, visibility, and inclusion decision. This does not change what the
+    // PromptBuilder receives (it still reads the typed snapshot fields); it records WHY each piece
+    // is allowed or excluded for the active NPC so the debug overlay and diploma can explain it.
+    private void BuildContextAvailabilityEntries(ContextSnapshot snapshot)
+    {
+        List<ContextEntry> entries = new List<ContextEntry>();
+
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        GatherNpcProfileEntries(snapshot, entries);
+        GatherPlayerVisibleEntries(snapshot, entries);
+        GatherWorldStateEntries(snapshot, entries);
+        GatherWorldEventEntries(snapshot, entries);
+        GatherNpcStateEntries(snapshot, entries);
+        GatherNearbySceneEntries(snapshot, entries);
+        GatherKnowledgeEntries(snapshot, entries);
+        GatherPlayerClaimEntries(snapshot, entries);
+        GatherPrivatePlayerEntries(snapshot, entries);
+
+        snapshot.contextEntries = entries;
+        snapshot.includedEntries = new List<ContextEntry>();
+        snapshot.excludedEntries = new List<ContextEntry>();
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            ContextEntry entry = entries[i];
+
+            if (entry == null)
+            {
+                continue;
+            }
+
+            if (entry.includedInPrompt)
+            {
+                snapshot.includedEntries.Add(entry);
+            }
+            else
+            {
+                snapshot.excludedEntries.Add(entry);
+            }
+        }
+    }
+
+    private static void GatherNpcProfileEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        if (snapshot.npcProfile == null)
+        {
+            return;
+        }
+
+        AddIncludedEntry(entries, "profile_" + SafeDebugText(snapshot.npcProfile.npcId),
+            "NPC profile: " + SafeDebugText(snapshot.npcProfile.npcName) + " (" + SafeDebugText(snapshot.npcProfile.role) + ")",
+            ContextSourceType.NPCProfile, ContextVisibility.NpcProfileKnowledge, snapshot.npcProfile.knowledgeTags);
+
+        AddTextEntries(entries, "profile_fact", snapshot.npcProfile.knownFacts,
+            ContextSourceType.NPCProfile, ContextVisibility.NpcProfileKnowledge);
+    }
+
+    private static void GatherPlayerVisibleEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        PlayerState playerState = snapshot.playerState;
+
+        if (playerState == null)
+        {
+            return;
+        }
+
+        AddVisibleStateEntry(entries, "visible_outfit", "Outfit", playerState.equippedOutfit, "normal");
+        AddVisibleStateEntry(entries, "visible_held_item", "Visible held item", playerState.visibleHeldItem, "none");
+        AddVisibleStateEntry(entries, "visible_reputation", "Public reputation", playerState.publicReputation, "unknown");
+        AddTextEntries(entries, "visible_tag", playerState.visibleStatusTags,
+            ContextSourceType.PlayerState, ContextVisibility.VisibleOnPlayer);
+    }
+
+    private static void GatherWorldStateEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        WorldState worldState = snapshot.worldState;
+
+        if (worldState == null)
+        {
+            return;
+        }
+
+        AddIncludedEntry(entries, "world_event_state", "Current village situation: " + SafeDebugText(worldState.currentEvent),
+            ContextSourceType.WorldState, ContextVisibility.PublicWorldState, null);
+        AddIncludedEntry(entries, "world_mood", "Village mood: " + SafeDebugText(worldState.villageMood),
+            ContextSourceType.WorldState, ContextVisibility.PublicWorldState, null);
+        AddTextEntries(entries, "world_fact", worldState.globalFacts,
+            ContextSourceType.WorldState, ContextVisibility.PublicWorldState);
+    }
+
+    private void GatherWorldEventEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        if (snapshot.recentRelevantEvents == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < snapshot.recentRelevantEvents.Count; i++)
+        {
+            WorldEvent worldEvent = snapshot.recentRelevantEvents[i];
+
+            if (worldEvent == null)
+            {
+                continue;
+            }
+
+            ContextVisibility visibility = worldEvent.isGlobal || worldEvent.isPublic
+                ? ContextVisibility.PublicWorldEvent
+                : ContextVisibility.TargetedEvent;
+
+            ContextEntry entry = new ContextEntry(
+                SafeDebugText(worldEvent.eventId),
+                SafeDebugText(worldEvent.description),
+                ContextSourceType.WorldEventLog,
+                visibility,
+                true);
+            entry.relatedObjectId = SafeOrEmpty(worldEvent.locationObjectId);
+            entry.relatedNpcId = SafeOrEmpty(worldEvent.targetNpcId);
+            entries.Add(entry);
+        }
+    }
+
+    private static void GatherNpcStateEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        NPCState npcState = snapshot.npcState;
+
+        if (npcState == null)
+        {
+            return;
+        }
+
+        AddIncludedEntry(entries, "npc_mood", "Own mood: " + SafeDebugText(npcState.mood),
+            ContextSourceType.NPCState, ContextVisibility.NpcPersonalMemory, null);
+        AddIncludedEntry(entries, "npc_trust", "Own trust toward player: " + SafeDebugText(npcState.trustToPlayer),
+            ContextSourceType.NPCState, ContextVisibility.NpcPersonalMemory, null);
+        AddTextEntries(entries, "npc_personal_event", npcState.personalEvents,
+            ContextSourceType.NPCState, ContextVisibility.NpcPersonalMemory);
+    }
+
+    private static void GatherNearbySceneEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        if (snapshot.nearbyObjects == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < snapshot.nearbyObjects.Count; i++)
+        {
+            SceneContextObject contextObject = snapshot.nearbyObjects[i];
+
+            if (contextObject == null)
+            {
+                continue;
+            }
+
+            ContextEntry entry = new ContextEntry(
+                SafeDebugText(contextObject.objectId),
+                "Nearby: " + SafeDebugText(contextObject.displayName) + " (" + SafeDebugText(contextObject.objectType) + ")",
+                ContextSourceType.SceneContextObject,
+                ContextVisibility.NearbySceneContext,
+                true);
+            entry.relatedObjectId = SafeOrEmpty(contextObject.objectId);
+            entry.tags = contextObject.tags;
+            entries.Add(entry);
+        }
+    }
+
+    private static void GatherKnowledgeEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        if (snapshot.retrievedKnowledge == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < snapshot.retrievedKnowledge.Count; i++)
+        {
+            KnowledgeEntry knowledge = snapshot.retrievedKnowledge[i];
+
+            if (knowledge == null)
+            {
+                continue;
+            }
+
+            ContextEntry entry = new ContextEntry(
+                SafeDebugText(knowledge.id),
+                SafeDebugText(knowledge.title),
+                ContextSourceType.KnowledgeBase,
+                ContextVisibility.RetrievedKnowledge,
+                true);
+            entry.tags = knowledge.tags;
+            entry.score = knowledge.importance;
+            entries.Add(entry);
+        }
+    }
+
+    private static void GatherPlayerClaimEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        if (string.IsNullOrEmpty(snapshot.playerMessage))
+        {
+            return;
+        }
+
+        // What the player says in dialogue is a PlayerClaim: the NPC may react to it, but must not
+        // treat it as a fact it personally witnessed unless another included source supports it.
+        AddIncludedEntry(entries, "player_claim", "Player states: " + snapshot.playerMessage.Trim(),
+            ContextSourceType.DialogueMemory, ContextVisibility.PlayerClaim, null);
+    }
+
+    private static void GatherPrivatePlayerEntries(ContextSnapshot snapshot, List<ContextEntry> entries)
+    {
+        PlayerState playerState = snapshot.playerState;
+
+        if (playerState == null)
+        {
+            return;
+        }
+
+        // PRIVACY RULE: private player discoveries never become NPC-owned knowledge automatically.
+        const string privateReason = "Private player discovery; the NPC has no way to know this unless the player says it (PlayerClaim) or it becomes a public event.";
+
+        AddExcludedEntries(entries, "private_known_fact", playerState.knownFacts,
+            ContextSourceType.PlayerState, ContextVisibility.PrivateToPlayer, privateReason);
+        AddExcludedEntries(entries, "private_completed_action", playerState.completedActions,
+            ContextSourceType.PlayerState, ContextVisibility.PrivateToPlayer, privateReason);
+
+        // heldItems is the player's private inventory/history; only visibleHeldItem is observable.
+        AddExcludedEntries(entries, "private_held_item", playerState.heldItems,
+            ContextSourceType.PlayerState, ContextVisibility.PrivateToPlayer,
+            "Carried in the player's pack; not visibly observable unless equipped as the visible held item.");
+    }
+
+    private static void AddVisibleStateEntry(List<ContextEntry> entries, string id, string label, string value, string emptyValue)
+    {
+        if (string.IsNullOrEmpty(value) || string.Equals(value.Trim(), emptyValue, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        AddIncludedEntry(entries, id, label + ": " + value.Trim(),
+            ContextSourceType.PlayerState, ContextVisibility.VisibleOnPlayer, null);
+    }
+
+    private static void AddIncludedEntry(List<ContextEntry> entries, string id, string text,
+        ContextSourceType sourceType, ContextVisibility visibility, List<string> tags)
+    {
+        ContextEntry entry = new ContextEntry(id, text, sourceType, visibility, true);
+
+        if (tags != null)
+        {
+            entry.tags = tags;
+        }
+
+        entries.Add(entry);
+    }
+
+    private static void AddTextEntries(List<ContextEntry> entries, string idPrefix, List<string> values,
+        ContextSourceType sourceType, ContextVisibility visibility)
+    {
+        if (values == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < values.Count; i++)
+        {
+            string value = values[i];
+
+            if (string.IsNullOrEmpty(value) || value.Trim().Length == 0)
+            {
+                continue;
+            }
+
+            entries.Add(new ContextEntry(idPrefix + "_" + i, value.Trim(), sourceType, visibility, true));
+        }
+    }
+
+    private static void AddExcludedEntries(List<ContextEntry> entries, string idPrefix, List<string> values,
+        ContextSourceType sourceType, ContextVisibility visibility, string reason)
+    {
+        if (values == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < values.Count; i++)
+        {
+            string value = values[i];
+
+            if (string.IsNullOrEmpty(value) || value.Trim().Length == 0)
+            {
+                continue;
+            }
+
+            ContextEntry entry = new ContextEntry(idPrefix + "_" + i, value.Trim(), sourceType, visibility, false);
+            entry.exclusionReason = reason;
+            entries.Add(entry);
+        }
+    }
+
+    private static string SafeOrEmpty(string value)
+    {
+        return string.IsNullOrEmpty(value) ? string.Empty : value.Trim();
     }
 
     private static void AddReason(List<string> reasons, string reason)

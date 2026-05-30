@@ -335,8 +335,17 @@ public class DialogueManager : MonoBehaviour
 
     private void ResolveLLMClient()
     {
-        if (useOpenAI && openAIClient != null)
+        // OpenAI is the only supported MVP runtime path. The Mock client is DEV-ONLY and becomes the
+        // active client solely when no OpenAIClient is assigned, with a clearly distinct provider
+        // label so the UI never presents scripted text as a real OpenAI answer.
+        if (openAIClient != null)
         {
+            if (!useOpenAI)
+            {
+                Debug.LogWarning("DialogueManager.useOpenAI is off, but OpenAI is the MVP runtime path. " +
+                    "Using OpenAIClient anyway. Enable useOpenAI to remove this warning.", this);
+            }
+
             llmClient = openAIClient;
             CurrentLLMName = "OpenAI";
             return;
@@ -345,7 +354,9 @@ public class DialogueManager : MonoBehaviour
         if (fallbackMockLLMClient != null)
         {
             llmClient = fallbackMockLLMClient;
-            CurrentLLMName = "Mock";
+            CurrentLLMName = "Mock (DEV)";
+            Debug.LogWarning("DialogueManager has no OpenAIClient assigned and is using the DEV MockLLMClient. " +
+                "Assign an OpenAIClient for the diploma demo.", this);
             return;
         }
 
@@ -399,7 +410,9 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        GameObject memoryStoreObject = new GameObject("NPCConversationMemoryStore");
+        Debug.LogWarning("DialogueManager: no NPCConversationMemoryStore in the scene. Creating a runtime " +
+            "fallback. Add a persistent NPCConversationMemoryStore to GameSystems for the final scene.", this);
+        GameObject memoryStoreObject = new GameObject("NPCConversationMemoryStore (runtime fallback)");
         conversationMemoryStore = memoryStoreObject.AddComponent<NPCConversationMemoryStore>();
         AssignConversationMemoryStoreToContextRetriever();
     }

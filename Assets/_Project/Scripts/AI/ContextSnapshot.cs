@@ -14,6 +14,12 @@ public class ContextSnapshot
     public List<string> contextSourceReasons = new List<string>();
     public string playerMessage;
 
+    // Context Availability Layer (provenance/visibility for every considered piece of context).
+    // contextEntries holds everything; includedEntries/excludedEntries are convenience views.
+    public List<ContextEntry> contextEntries = new List<ContextEntry>();
+    public List<ContextEntry> includedEntries = new List<ContextEntry>();
+    public List<ContextEntry> excludedEntries = new List<ContextEntry>();
+
     public string GetDebugText()
     {
         StringBuilder builder = new StringBuilder();
@@ -126,6 +132,31 @@ public class ContextSnapshot
             }
         }
 
+        builder.AppendLine();
+        builder.AppendLine("---- Included Context Entries (allowed for this NPC) ----");
+        AppendEntryLines(builder, includedEntries);
+
+        builder.AppendLine();
+        builder.AppendLine("---- Excluded Context Entries (not NPC-owned knowledge) ----");
+        AppendEntryLines(builder, excludedEntries);
+
         return builder.ToString();
+    }
+
+    private static void AppendEntryLines(StringBuilder builder, List<ContextEntry> entries)
+    {
+        if (entries == null || entries.Count == 0)
+        {
+            builder.AppendLine("None");
+            return;
+        }
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            if (entries[i] != null)
+            {
+                builder.AppendLine("- " + entries[i].GetDebugLine());
+            }
+        }
     }
 }
