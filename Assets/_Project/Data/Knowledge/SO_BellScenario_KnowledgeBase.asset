@@ -72,9 +72,9 @@ MonoBehaviour:
     importance: 4
   - id: public_bell_found_resolution
     title: Finding the bell calms the village
-    text: When the missing bell is found, relief spreads and the village grows calmer,
-      though people still wonder why it was gone and who moved it. Talk of it being
-      missing becomes old news.
+    text: When the missing bell is found, relief spreads and the village grows calmer.
+      The daily rhythm can return, though people still wonder why it was gone and who
+      moved it. Talk of it being missing becomes old news.
     tags:
     - bell
     - bell_found
@@ -85,6 +85,22 @@ MonoBehaviour:
     - church
     knownByNpcIds: []
     importance: 5
+  - id: public_daily_village_rhythm
+    title: The bell once set the village's daily rhythm
+    text: For as long as most people remember, the bell rang for mornings, midday,
+      and evening, and called everyone together for news or danger. Without it the
+      days feel oddly shapeless and people lose their shared sense of time.
+    tags:
+    - bell
+    - rhythm
+    - routine
+    - daily
+    - church
+    - gathering
+    relatedObjectIds:
+    - church
+    knownByNpcIds: []
+    importance: 4
   - id: public_tavern_social_life
     title: The tavern is where village talk gathers
     text: The tavern is the heart of village talk. Rumors, traveler news, and the
@@ -101,6 +117,36 @@ MonoBehaviour:
     - tavern
     knownByNpcIds: []
     importance: 4
+  - id: public_church_symbolic_center
+    title: The church is the village's symbolic heart
+    text: The old stone church is where the village gathers and marks important moments.
+      Even people who rarely pray treat it as the steady center of village life.
+    tags:
+    - church
+    - tradition
+    - sacred
+    - gathering
+    - history
+    relatedObjectIds:
+    - church
+    knownByNpcIds: []
+    importance: 3
+  - id: public_forge_practical_center
+    title: The forge is where practical questions get answered
+    text: Borin's forge makes and mends tools, locks, hinges, and metal fittings.
+      When something needs weighing, checking, or proving, people look here rather
+      than to rumor.
+    tags:
+    - forge
+    - blacksmith
+    - metal
+    - tools
+    - repair
+    - evidence
+    relatedObjectIds:
+    - blacksmith_area
+    knownByNpcIds: []
+    importance: 3
   - id: mira_reads_people_in_tavern
     title: Mira reads the people she serves
     text: Mira watches how people dress, speak, and carry themselves. She quickly
@@ -119,6 +165,20 @@ MonoBehaviour:
     knownByNpcIds:
     - mira
     importance: 5
+  - id: mira_on_anselm
+    title: Mira's view of Anselm
+    text: Mira knows Anselm keeps clear of tavern gossip, but she respects that he
+      remembers the things that actually matter and rarely speaks without reason.
+    tags:
+    - mira
+    - anselm
+    - gossip
+    - memory
+    - tradition
+    relatedObjectIds: []
+    knownByNpcIds:
+    - mira
+    importance: 3
   - id: borin_judges_workmanship
     title: Borin trusts work, not appearances
     text: Borin is not impressed by armor or cloaks. He judges people by what they
@@ -138,6 +198,23 @@ MonoBehaviour:
     knownByNpcIds:
     - borin
     importance: 5
+  - id: borin_on_rumors_vs_evidence
+    title: Borin trusts evidence over rumor
+    text: Borin puts more faith in what he can weigh, measure, and inspect than in
+      Mira's tavern talk. He will believe the bell was moved when something physical
+      shows it, not before.
+    tags:
+    - borin
+    - evidence
+    - proof
+    - rumors
+    - mira
+    - bell
+    relatedObjectIds:
+    - blacksmith_area
+    knownByNpcIds:
+    - borin
+    importance: 3
   - id: eldric_connects_armor_with_responsibility
     title: Eldric expects responsibility from armor
     text: Eldric reads guard armor as a claim of authority and duty. If the player
@@ -171,6 +248,22 @@ MonoBehaviour:
     knownByNpcIds:
     - eldric
     importance: 4
+  - id: eldric_relies_on_mira_and_borin
+    title: Eldric leans on Mira and Borin
+    text: Eldric reads the village through others. He trusts Mira to tell him the
+      public mood and Borin to give him plain physical facts, then weighs both before
+      he says anything.
+    tags:
+    - eldric
+    - mira
+    - borin
+    - mood
+    - facts
+    - order
+    relatedObjectIds: []
+    knownByNpcIds:
+    - eldric
+    importance: 3
   - id: anselm_bell_meaning_and_conduct
     title: To Anselm the bell means shared rhythm
     text: For Anselm the church bell was never just metal. It marked the village's
@@ -189,3 +282,18 @@ MonoBehaviour:
     knownByNpcIds:
     - anselm
     importance: 5
+  - id: anselm_on_eldric
+    title: Anselm's view of Eldric
+    text: Anselm respects Eldric's sense of duty and his effort to keep the village
+      calm, but quietly worries that Eldric carries his own fear alone and hides his
+      concern too well.
+    tags:
+    - anselm
+    - eldric
+    - duty
+    - worry
+    - order
+    relatedObjectIds: []
+    knownByNpcIds:
+    - anselm
+    importance: 3

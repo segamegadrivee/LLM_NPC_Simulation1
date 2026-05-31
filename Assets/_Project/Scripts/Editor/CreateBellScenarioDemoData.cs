@@ -29,7 +29,8 @@ public static class CreateBellScenarioDemoData
                 "The old bell gathered villagers and warned them of danger.",
                 "A missing bell can shake trust and stir fear if people panic.",
                 "He relies on Mira for the village mood and Borin for physical facts.",
-                "His task is to keep order and stop rumors from becoming panic."
+                "His task is to keep order and stop rumors from becoming panic.",
+                "He would rather people stay calm and wait for facts than rush to blame."
             },
             new List<string>
             {
@@ -52,7 +53,8 @@ public static class CreateBellScenarioDemoData
                 "The tavern is where village rumors and traveler news gather first.",
                 "Since the bell went missing, people have been more anxious and tight-lipped.",
                 "A nervous stranger was seen near the tavern not long ago.",
-                "She notices clothing, nervousness, and who might be hiding something."
+                "She notices clothing, nervousness, and who might be hiding something.",
+                "Quieter, more careful tavern talk usually means people are more worried."
             },
             new List<string>
             {
@@ -75,7 +77,8 @@ public static class CreateBellScenarioDemoData
                 "A church bell is heavy and hard to move quietly without tools or a cart.",
                 "Moving it would take more than one person, or the right equipment.",
                 "Rumors mean little to him without physical evidence.",
-                "Eldric often asks him to inspect tools, locks, and metal traces."
+                "Eldric often asks him to inspect tools, locks, and metal traces.",
+                "He has mended the church's iron fittings before and knows how the bell was mounted."
             },
             new List<string>
             {
@@ -98,7 +101,8 @@ public static class CreateBellScenarioDemoData
                 "The church bell set the village's daily rhythm and called people together.",
                 "Its silence unsettles people more than they admit.",
                 "He values quiet and respectful behavior near the church.",
-                "Small shared symbols, like the bell, help hold a village together."
+                "Small shared symbols, like the bell, help hold a village together.",
+                "The bell once rang for mornings, midday, gatherings, and warnings of danger."
             },
             new List<string>
             {
@@ -269,6 +273,76 @@ public static class CreateBellScenarioDemoData
                 relatedObjectIds = new List<string> { "church" },
                 knownByNpcIds = new List<string> { "anselm" },
                 importance = 5
+            },
+            new KnowledgeEntry
+            {
+                id = "public_daily_village_rhythm",
+                title = "The bell once set the village's daily rhythm",
+                text = "For as long as most people remember, the bell rang for mornings, midday, and evening, and called everyone together for news or danger. Without it the days feel oddly shapeless and people lose their shared sense of time.",
+                tags = new List<string> { "bell", "rhythm", "routine", "daily", "church", "gathering" },
+                relatedObjectIds = new List<string> { "church" },
+                knownByNpcIds = new List<string>(),
+                importance = 4
+            },
+            new KnowledgeEntry
+            {
+                id = "public_church_symbolic_center",
+                title = "The church is the village's symbolic heart",
+                text = "The old stone church is where the village gathers and marks important moments. Even people who rarely pray treat it as the steady center of village life.",
+                tags = new List<string> { "church", "tradition", "sacred", "gathering", "history" },
+                relatedObjectIds = new List<string> { "church" },
+                knownByNpcIds = new List<string>(),
+                importance = 3
+            },
+            new KnowledgeEntry
+            {
+                id = "public_forge_practical_center",
+                title = "The forge is where practical questions get answered",
+                text = "Borin's forge makes and mends tools, locks, hinges, and metal fittings. When something needs weighing, checking, or proving, people look here rather than to rumor.",
+                tags = new List<string> { "forge", "blacksmith", "metal", "tools", "repair", "evidence" },
+                relatedObjectIds = new List<string> { "blacksmith_area" },
+                knownByNpcIds = new List<string>(),
+                importance = 3
+            },
+            new KnowledgeEntry
+            {
+                id = "mira_on_anselm",
+                title = "Mira's view of Anselm",
+                text = "Mira knows Anselm keeps clear of tavern gossip, but she respects that he remembers the things that actually matter and rarely speaks without reason.",
+                tags = new List<string> { "mira", "anselm", "gossip", "memory", "tradition" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string> { "mira" },
+                importance = 3
+            },
+            new KnowledgeEntry
+            {
+                id = "borin_on_rumors_vs_evidence",
+                title = "Borin trusts evidence over rumor",
+                text = "Borin puts more faith in what he can weigh, measure, and inspect than in Mira's tavern talk. He will believe the bell was moved when something physical shows it, not before.",
+                tags = new List<string> { "borin", "evidence", "proof", "rumors", "mira", "bell" },
+                relatedObjectIds = new List<string> { "blacksmith_area" },
+                knownByNpcIds = new List<string> { "borin" },
+                importance = 3
+            },
+            new KnowledgeEntry
+            {
+                id = "eldric_relies_on_mira_and_borin",
+                title = "Eldric leans on Mira and Borin",
+                text = "Eldric reads the village through others. He trusts Mira to tell him the public mood and Borin to give him plain physical facts, then weighs both before he says anything.",
+                tags = new List<string> { "eldric", "mira", "borin", "mood", "facts", "order" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string> { "eldric" },
+                importance = 3
+            },
+            new KnowledgeEntry
+            {
+                id = "anselm_on_eldric",
+                title = "Anselm's view of Eldric",
+                text = "Anselm respects Eldric's sense of duty and his effort to keep the village calm, but quietly worries that Eldric carries his own fear alone and hides his concern too well.",
+                tags = new List<string> { "anselm", "eldric", "duty", "worry", "order" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string> { "anselm" },
+                importance = 3
             }
         };
 
