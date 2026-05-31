@@ -14,17 +14,6 @@ public class PlayerState : MonoBehaviour
     public List<string> knownFacts = new List<string>();
     public bool debugLogs = true;
 
-    // FUTURE-WORK / INACTIVE FIELDS.
-    // The MVP has no gameplay that drives a reputation/aggression/helpfulness system, so these are
-    // NOT exposed to the prompt or debug UI. They are kept only as serialized placeholders so existing
-    // scene data is not disturbed; wire up a driver before relying on them. publicReputation also still
-    // feeds the (inert) visible-state retrieval path and stays "unknown" in the current demo.
-    public string reputation = "neutral";
-    public string publicReputation = "unknown";
-    public int aggressionScore;
-    public int helpfulnessScore;
-    public List<string> reputationEvents = new List<string>();
-
     public string GetPlayerStateText()
     {
         StringBuilder builder = new StringBuilder();
@@ -92,7 +81,7 @@ public class PlayerState : MonoBehaviour
 
         AddCompletedAction("player_equipped_" + NormalizeToken(equippedOutfit));
 
-        // Refresh held-item / reputation derived tags (these are independent of the outfit).
+        // Refresh held-item derived visible tags (these are independent of the outfit).
         RefreshVisibleStatusTags();
 
         if (debugLogs)
@@ -166,9 +155,8 @@ public class PlayerState : MonoBehaviour
             visibleStatusTags = new List<string>();
         }
 
-        // Outfit tags are owned by EquipOutfit. This only manages held-item / reputation derived tags.
+        // Outfit tags are owned by EquipOutfit. This only manages held-item derived visible tags.
         RemoveControlledVisibleTag("armed");
-        RemoveControlledVisibleTag("suspicious");
         RemoveControlledVisibleTag("carrying_sacred_object");
 
         if (string.Equals(visibleHeldItem, "sword", System.StringComparison.OrdinalIgnoreCase) ||
@@ -180,12 +168,6 @@ public class PlayerState : MonoBehaviour
         if (string.Equals(visibleHeldItem, "bell_fragment", System.StringComparison.OrdinalIgnoreCase))
         {
             AddVisibleStatusTag("carrying_sacred_object");
-        }
-
-        if (string.Equals(publicReputation, "suspicious", System.StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(publicReputation, "dangerous", System.StringComparison.OrdinalIgnoreCase))
-        {
-            AddVisibleStatusTag("suspicious");
         }
     }
 

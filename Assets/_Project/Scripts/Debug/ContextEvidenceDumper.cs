@@ -630,7 +630,7 @@ public static class ContextEvidenceDumper
 
         if (snapshot.playerState != null)
         {
-            builder.AppendLine("- PlayerState: reputation/currentRole plus visible outfit, visible held item, visible status tags, public reputation, scores, knownFacts, heldItems, completedActions.");
+            builder.AppendLine("- PlayerState: currentRole plus visible outfit, visible held item, visible status tags, knownFacts, heldItems, completedActions.");
         }
         else
         {
@@ -837,7 +837,7 @@ public static class ContextEvidenceDumper
 
         if (data.playerState == null)
         {
-            builder.AppendLine("- PlayerState missing. Player reputation, role, facts, items, and actions cannot affect the prompt.");
+            builder.AppendLine("- PlayerState missing. Player role, facts, items, and actions cannot affect the prompt.");
         }
 
         if (data.worldState == null)

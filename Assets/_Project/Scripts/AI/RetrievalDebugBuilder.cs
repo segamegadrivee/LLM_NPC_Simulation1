@@ -80,7 +80,7 @@ public static class RetrievalDebugBuilder
         }
         else
         {
-            debugEntry.skippedReasons.Add("visible_state_activation: false - outfit, held item, reputation, and visible tags did not match this entry.");
+            debugEntry.skippedReasons.Add("visible_state_activation: false - outfit, held item, and visible tags did not match this entry.");
         }
 
         if (evaluation.hasNpcStateActivation)

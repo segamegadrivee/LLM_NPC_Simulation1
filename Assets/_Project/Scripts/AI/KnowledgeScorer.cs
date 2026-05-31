@@ -173,7 +173,6 @@ public static class KnowledgeScorer
 
         AddEntryMatchFromTerm(result, entry, playerState.equippedOutfit);
         AddEntryMatchFromTerm(result, entry, playerState.visibleHeldItem);
-        AddEntryMatchFromTerm(result, entry, playerState.publicReputation);
         AddEntryMatchesFromTerms(result, entry, playerState.visibleStatusTags);
         return result;
     }

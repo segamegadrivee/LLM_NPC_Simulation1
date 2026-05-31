@@ -18,7 +18,7 @@ public static class ContextSnapshotBuilder
 
         AddReason(reasons, "source: npc_profile - active NPC profile selected by DialogueManager.");
         AddReason(reasons, "source: player_state - PlayerState component attached to player.");
-        AddReason(reasons, "source: visible_player_state - equippedOutfit, visibleHeldItem, visibleStatusTags, publicReputation are observable to all NPCs.");
+        AddReason(reasons, "source: visible_player_state - equippedOutfit, visibleHeldItem, visibleStatusTags are observable to all NPCs.");
         AddReason(reasons, "source: world_state - public/global WorldState is available to all NPCs.");
 
         if (snapshot.npcState != null)
@@ -164,7 +164,6 @@ public static class ContextSnapshotBuilder
 
         AddVisibleStateEntry(entries, "visible_outfit", "Outfit", playerState.equippedOutfit, "normal");
         AddVisibleStateEntry(entries, "visible_held_item", "Visible held item", playerState.visibleHeldItem, "none");
-        AddVisibleStateEntry(entries, "visible_reputation", "Public reputation", playerState.publicReputation, "unknown");
         AddTextEntries(entries, "visible_tag", playerState.visibleStatusTags,
             ContextSourceType.PlayerState, ContextVisibility.VisibleOnPlayer);
     }
