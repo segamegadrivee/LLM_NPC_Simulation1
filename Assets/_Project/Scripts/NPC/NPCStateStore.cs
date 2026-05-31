@@ -50,52 +50,6 @@ public class NPCStateStore : MonoBehaviour
         return newState;
     }
 
-    public void SetMood(string npcId, string mood)
-    {
-        NPCState state = GetOrCreateState(npcId);
-        state.mood = HasText(mood) ? mood.Trim() : "neutral";
-
-        if (debugLogs)
-        {
-            Debug.Log("NPCStateStore set mood for " + state.npcId + ": " + state.mood, this);
-        }
-    }
-
-    public void SetTrust(string npcId, string trust)
-    {
-        NPCState state = GetOrCreateState(npcId);
-        state.trustToPlayer = HasText(trust) ? trust.Trim() : "medium";
-
-        if (debugLogs)
-        {
-            Debug.Log("NPCStateStore set trust for " + state.npcId + ": " + state.trustToPlayer, this);
-        }
-    }
-
-    public void AddPersonalEvent(string npcId, string eventDescription)
-    {
-        NPCState state = GetOrCreateState(npcId);
-        state.AddPersonalEvent(eventDescription);
-
-        if (debugLogs && HasText(eventDescription))
-        {
-            Debug.Log("NPCStateStore added personal event for " + state.npcId + ": " + eventDescription.Trim(), this);
-        }
-    }
-
-    public void RegisterAggressionAgainstNpc(string npcId, string description)
-    {
-        NPCState state = GetOrCreateState(npcId);
-        state.mood = "angry";
-        state.trustToPlayer = "low";
-        state.AddPersonalEvent(description);
-
-        if (debugLogs)
-        {
-            Debug.Log("NPCStateStore registered aggression against " + state.npcId + ": " + description, this);
-        }
-    }
-
     private static string NormalizeNpcId(string npcId)
     {
         return HasText(npcId) ? npcId.Trim().ToLowerInvariant() : "unknown";

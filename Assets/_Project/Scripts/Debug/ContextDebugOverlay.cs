@@ -468,18 +468,13 @@ public class ContextDebugOverlay : MonoBehaviour
             return;
         }
 
-        DrawField("reputation", playerState.reputation);
         DrawField("currentRole", playerState.currentRole);
         DrawField("equippedOutfit", playerState.equippedOutfit);
         DrawField("visibleHeldItem", playerState.visibleHeldItem);
         DrawField("visibleStatusTags", InlineList(playerState.visibleStatusTags));
-        DrawField("publicReputation", playerState.publicReputation);
-        DrawField("aggressionScore", playerState.aggressionScore.ToString());
-        DrawField("helpfulnessScore", playerState.helpfulnessScore.ToString());
         DrawField("knownFacts", InlineList(playerState.knownFacts));
         DrawField("heldItems", InlineList(playerState.heldItems));
         DrawField("completedActions", InlineList(playerState.completedActions));
-        DrawField("reputationEvents", InlineList(playerState.reputationEvents));
 
         GUILayout.EndVertical();
     }

@@ -101,7 +101,6 @@ public static class PromptBuilder
         {
             builder.AppendLine("Equipped Outfit: " + SafeText(snapshot.playerState.equippedOutfit, "normal"));
             builder.AppendLine("Visible Held Item: " + SafeText(snapshot.playerState.visibleHeldItem, "none"));
-            builder.AppendLine("Public Reputation: " + SafeText(snapshot.playerState.publicReputation, "unknown"));
             builder.AppendLine("Visible Status Tags:");
             AppendStringList(builder, snapshot.playerState.visibleStatusTags);
         }

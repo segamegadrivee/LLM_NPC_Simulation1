@@ -20,26 +20,6 @@ public class NPCState
         return builder.ToString();
     }
 
-    public void AddPersonalEvent(string eventDescription)
-    {
-        if (!HasText(eventDescription))
-        {
-            return;
-        }
-
-        if (personalEvents == null)
-        {
-            personalEvents = new List<string>();
-        }
-
-        string cleanValue = eventDescription.Trim();
-
-        if (!ContainsIgnoreCase(personalEvents, cleanValue))
-        {
-            personalEvents.Add(cleanValue);
-        }
-    }
-
     private static void AppendList(StringBuilder builder, string label, List<string> values)
     {
         builder.AppendLine(label + ":");
@@ -65,24 +45,6 @@ public class NPCState
         {
             builder.AppendLine("- None");
         }
-    }
-
-    private static bool ContainsIgnoreCase(List<string> values, string target)
-    {
-        if (values == null || !HasText(target))
-        {
-            return false;
-        }
-
-        for (int i = 0; i < values.Count; i++)
-        {
-            if (HasText(values[i]) && string.Equals(values[i].Trim(), target.Trim(), System.StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static bool HasText(string value)

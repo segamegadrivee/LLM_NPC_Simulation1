@@ -35,8 +35,7 @@ public static class ValidateMvpScene
 
         // Optional demo content.
         ReportOptional<OutfitInteractable>("OutfitInteractable (visible appearance demo)", ok);
-        ReportOptional<VisibleItemInteractable>("VisibleItemInteractable (visible item demo)", ok);
-        ReportOptional<HiddenBellInteractable>("HiddenBellInteractable (public event demo)", ok);
+        ReportOptional<BellFoundInteractable>("BellFoundInteractable (public bell-found event demo)", ok);
 
         // Configuration checks.
         if (dialogueManager != null)

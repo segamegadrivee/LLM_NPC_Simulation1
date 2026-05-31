@@ -7,8 +7,8 @@ using UnityEngine;
 // system. Triggers once: flips the global WorldState to "found", logs a public/global WorldEvent that
 // every NPC can see, optionally records a private player fact, and hides the bell prop.
 //
-// A dedicated script (instead of the older HiddenBellInteractable) keeps this demo clean: no
-// bell_fragment held item, inspector-friendly fields, and visual disabling.
+// A single dedicated script keeps this demo clean: no bell_fragment held item, inspector-friendly
+// fields, and visual disabling. This is the current/only bell-found mechanic for the MVP.
 public class BellFoundInteractable : BaseInteractable
 {
     public string eventId = "bell_found_publicly";

@@ -232,7 +232,7 @@ public static class ContextPipelineTracer
         }
 
         AppendPromptSectionProof(builder, data, "CURRENT NPC", "VISIBLE PLAYER STATE", "snapshot.npcProfile.GetProfileContextText()");
-        AppendPromptSectionProof(builder, data, "VISIBLE PLAYER STATE", "PLAYER DISCOVERED FACTS", "snapshot.playerState.equippedOutfit, visibleHeldItem, visibleStatusTags, publicReputation");
+        AppendPromptSectionProof(builder, data, "VISIBLE PLAYER STATE", "PLAYER DISCOVERED FACTS", "snapshot.playerState.equippedOutfit, visibleHeldItem, visibleStatusTags");
         AppendPromptSectionProof(builder, data, "PLAYER DISCOVERED FACTS", "NPC STATE TOWARD PLAYER", "snapshot.playerState.knownFacts, completedActions, heldItems");
         AppendPromptSectionProof(builder, data, "NPC STATE TOWARD PLAYER", "LOCAL ENVIRONMENT", "snapshot.npcState.mood, trustToPlayer, personalEvents");
         AppendPromptSectionProof(builder, data, "LOCAL ENVIRONMENT", "PUBLIC WORLD STATE", "snapshot.nearbyObjects[i].GetContextText()");
@@ -449,12 +449,9 @@ public static class ContextPipelineTracer
         }
 
         bool inSnapshot = data.snapshot != null && data.snapshot.playerState == playerState;
-        AddTraceRow(rows, prompt, sourceObject, "reputation", playerState.reputation, "snapshot.playerState.reputation", "Reputation: " + playerState.reputation, inSnapshot, null);
         AddTraceRow(rows, prompt, sourceObject, "currentRole", playerState.currentRole, "snapshot.playerState.currentRole", "Current Role: " + playerState.currentRole, inSnapshot, null);
         AddTraceRow(rows, prompt, sourceObject, "equippedOutfit", playerState.equippedOutfit, "snapshot.playerState.equippedOutfit", "Equipped Outfit: " + playerState.equippedOutfit, inSnapshot, null);
         AddTraceRow(rows, prompt, sourceObject, "visibleHeldItem", playerState.visibleHeldItem, "snapshot.playerState.visibleHeldItem", "Visible Held Item: " + playerState.visibleHeldItem, inSnapshot, null);
-        AddTraceRow(rows, prompt, sourceObject, "publicReputation", playerState.publicReputation, "snapshot.playerState.publicReputation", "Public Reputation: " + playerState.publicReputation, inSnapshot, null);
-        AddTraceRow(rows, prompt, sourceObject, "aggressionScore", playerState.aggressionScore.ToString(), "snapshot.playerState.aggressionScore", "Aggression Score: " + playerState.aggressionScore, inSnapshot, null);
         AddListRows(rows, prompt, sourceObject, "visibleStatusTags", playerState.visibleStatusTags, "snapshot.playerState.visibleStatusTags", inSnapshot);
         AddListRows(rows, prompt, sourceObject, "knownFacts", playerState.knownFacts, "snapshot.playerState.knownFacts", inSnapshot);
         AddListRows(rows, prompt, sourceObject, "heldItems", playerState.heldItems, "snapshot.playerState.heldItems", inSnapshot);

@@ -5,36 +5,37 @@ using UnityEngine;
 // Attach this to the Player object so NPCs can react to what the player knows, has, or has done.
 public class PlayerState : MonoBehaviour
 {
-    public string reputation = "neutral";
     public string currentRole = "traveler";
     public string equippedOutfit = "normal";
     public string visibleHeldItem = "none";
     public List<string> visibleStatusTags = new List<string>();
-    public string publicReputation = "unknown";
-    public int aggressionScore;
-    public int helpfulnessScore;
     public List<string> heldItems = new List<string>();
     public List<string> completedActions = new List<string>();
     public List<string> knownFacts = new List<string>();
-    public List<string> reputationEvents = new List<string>();
     public bool debugLogs = true;
+
+    // FUTURE-WORK / INACTIVE FIELDS.
+    // The MVP has no gameplay that drives a reputation/aggression/helpfulness system, so these are
+    // NOT exposed to the prompt or debug UI. They are kept only as serialized placeholders so existing
+    // scene data is not disturbed; wire up a driver before relying on them. publicReputation also still
+    // feeds the (inert) visible-state retrieval path and stays "unknown" in the current demo.
+    public string reputation = "neutral";
+    public string publicReputation = "unknown";
+    public int aggressionScore;
+    public int helpfulnessScore;
+    public List<string> reputationEvents = new List<string>();
 
     public string GetPlayerStateText()
     {
         StringBuilder builder = new StringBuilder();
         builder.AppendLine("Player State");
-        builder.AppendLine("Reputation: " + SafeText(reputation));
         builder.AppendLine("Current Role: " + SafeText(currentRole));
         builder.AppendLine("Equipped Outfit: " + SafeText(equippedOutfit));
         builder.AppendLine("Visible Held Item: " + SafeText(visibleHeldItem));
-        builder.AppendLine("Public Reputation: " + SafeText(publicReputation));
-        builder.AppendLine("Aggression Score: " + aggressionScore);
-        builder.AppendLine("Helpfulness Score: " + helpfulnessScore);
         AppendList(builder, "Visible Status Tags", visibleStatusTags);
         AppendList(builder, "Held Items", heldItems);
         AppendList(builder, "Completed Actions", completedActions);
         AppendList(builder, "Known Facts", knownFacts);
-        AppendList(builder, "Reputation Events", reputationEvents);
         return builder.ToString();
     }
 
@@ -125,26 +126,6 @@ public class PlayerState : MonoBehaviour
         if (debugLogs)
         {
             Debug.Log("PlayerState visible held item cleared.", this);
-        }
-    }
-
-    public void AddReputationEvent(string eventDescription)
-    {
-        AddUnique(ref reputationEvents, eventDescription, "reputation event");
-    }
-
-    public void RegisterAggression()
-    {
-        aggressionScore++;
-        publicReputation = aggressionScore >= 2 ? "dangerous" : "suspicious";
-        reputation = publicReputation;
-        AddCompletedAction("player_committed_aggression");
-        AddReputationEvent("Player committed aggression.");
-        RefreshVisibleStatusTags();
-
-        if (debugLogs)
-        {
-            Debug.Log("PlayerState registered aggression. Score: " + aggressionScore + ", reputation: " + publicReputation, this);
         }
     }
 

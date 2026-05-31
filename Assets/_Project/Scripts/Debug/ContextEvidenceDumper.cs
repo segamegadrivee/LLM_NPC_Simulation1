@@ -147,18 +147,13 @@ public static class ContextEvidenceDumper
 
         PlayerState playerState = data.playerState;
         builder.AppendLine("source: PlayerState component/object - " + DescribeComponent(playerState));
-        builder.AppendLine("reputation: " + SafeText(playerState.reputation, "None"));
         builder.AppendLine("currentRole: " + SafeText(playerState.currentRole, "None"));
         builder.AppendLine("equippedOutfit: " + SafeText(playerState.equippedOutfit, "None"));
         builder.AppendLine("visibleHeldItem: " + SafeText(playerState.visibleHeldItem, "None"));
-        builder.AppendLine("publicReputation: " + SafeText(playerState.publicReputation, "None"));
-        builder.AppendLine("aggressionScore: " + playerState.aggressionScore);
-        builder.AppendLine("helpfulnessScore: " + playerState.helpfulnessScore);
         AppendStringList(builder, "visibleStatusTags", playerState.visibleStatusTags);
         AppendStringList(builder, "knownFacts", playerState.knownFacts);
         AppendStringList(builder, "heldItems", playerState.heldItems);
         AppendStringList(builder, "completedActions", playerState.completedActions);
-        AppendStringList(builder, "reputationEvents", playerState.reputationEvents);
         builder.AppendLine();
     }
 
@@ -763,12 +758,9 @@ public static class ContextEvidenceDumper
         }
         else
         {
-            builder.AppendLine("- PlayerState.reputation: " + SafeText(data.playerState.reputation, "None"));
             builder.AppendLine("- PlayerState.currentRole: " + SafeText(data.playerState.currentRole, "None"));
             builder.AppendLine("- PlayerState.equippedOutfit: " + SafeText(data.playerState.equippedOutfit, "None"));
             builder.AppendLine("- PlayerState.visibleHeldItem: " + SafeText(data.playerState.visibleHeldItem, "None"));
-            builder.AppendLine("- PlayerState.publicReputation: " + SafeText(data.playerState.publicReputation, "None"));
-            builder.AppendLine("- PlayerState.aggressionScore: " + data.playerState.aggressionScore);
             AppendStringList(builder, "- PlayerState.visibleStatusTags", data.playerState.visibleStatusTags);
             AppendStringList(builder, "- PlayerState.knownFacts", data.playerState.knownFacts);
             AppendStringList(builder, "- PlayerState.heldItems", data.playerState.heldItems);
