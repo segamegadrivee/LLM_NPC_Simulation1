@@ -1365,27 +1365,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneContextObject
   objectId: church
-  displayName: Old Church
+  displayName: The Old Church
   objectType: Building
-  description: An old stone church that stands near the village square. It was built
-    before most of the current houses and is treated by villagers as a place of memory,
-    gathering, and protection. Its bell used to call people together during danger,
-    funerals, village meetings, and important announcements. Now the bell is missing,
-    and the silence of the church makes the village feel unsafe and uneasy.
+  description: The old stone church beside the village square, the first building
+    the founding families raised when they settled here generations ago. Ever since,
+    it has been where the village gathers for weddings, namings, funerals, and the
+    seasonal festivals, and where its shared memory is kept. Anselm has cared for the
+    church and its traditions for many years. Its bell once marked the hours and called
+    people together or warned of danger, but the bell is only one part of what the
+    place means; even silent now, the church remains the steady heart of the village.
   tags:
   - church
-  - bell
   - history
+  - founders
+  - settlers
   - tradition
+  - ceremonies
+  - gathering
   - memory
-  - village
-  - symbol
+  - bell
+  - sacred
   stateFacts:
+  - Anselm is the caretaker of the church
+  - The oldest building, raised by the founding families
+  - Weddings, namings, funerals, and seasonal festivals are held here
+  - It holds the village's shared memory and traditions
+  - The bell marked the hours and warned of danger
   - bellMissing = true
-  - caretaker = Anselm
   - villageMoodAroundChurch = worried
-  - bellWasUsedForWarnings = true
-  - villagersRespectChurch = true
 --- !u!1 &774851464
 GameObject:
   m_ObjectHideFlags: 0
@@ -1749,16 +1756,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneContextObject
   objectId: blacksmith_area
-  displayName: Blacksmith Area
-  objectType: 'WorkArea '
-  description: A place for metalwork, repairs, tools, and physical evidence.
+  displayName: The Forge
+  objectType: Work Area
+  description: Borin's forge, the practical work center of the village, where iron
+    has been worked for as long as anyone remembers. Tools, locks, hinges, nails,
+    and the metal fittings for carts and doors are made and mended here, and animals
+    are shod at the door. The walls are dark with soot and the benches scarred by
+    years of labor and old repairs. People bring things here to be weighed, measured,
+    fixed, or proven, so plain physical facts count for far more than tavern rumor.
+    Borin works the iron himself and trusts only what he can see and test.
   tags:
+  - forge
   - blacksmith
   - metal
   - tools
+  - locks
+  - hinges
+  - carts
+  - repair
+  - labor
   - evidence
   stateFacts:
-  - Borin can inspect metal traces
+  - Borin works the iron at the forge
+  - Tools, locks, hinges, nails, and cart fittings are made and mended here
+  - The forge has served the village for generations
+  - Soot and worn benches show years of labor and repairs
+  - Physical proof matters more here than rumor
+  - Borin can judge whether something heavy could be moved
 --- !u!4 &1008104991 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4804194293512760, guid: 2db5cf884e24ae74ba5afa31151e2453, type: 3}
@@ -4103,16 +4127,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneContextObject
   objectId: tavern
-  displayName: Village Tavern
+  displayName: The Old Tavern
   objectType: Building
-  description: ' A social place where villagers and travelers exchange rumors.'
+  description: The village tavern, a warm and crowded room at the center of daily
+    life and the place where the village really gathers. Locals come to drink, eat,
+    and argue, travelers stop to rest and trade news from the road, and merchants
+    settle their deals over a table. Families sometimes bring their quarrels here,
+    and on quiet nights the old village stories are told again by the fire. Mira runs
+    the place and hears almost every rumor first, reading who is calm, who is tense,
+    and who is hiding something. When people are frightened or worried, the talk grows
+    quieter and more careful.
   tags:
   - tavern
+  - social
+  - gathering
   - rumors
-  - people
-  - stranger
+  - news
+  - travelers
+  - merchants
+  - stories
+  - disputes
+  - mira
   stateFacts:
-  - ' Mira saw a nervous stranger last night'
+  - Mira runs the tavern and usually hears rumors first
+  - Locals, travelers, and merchants gather here every day
+  - Travelers bring news and stories from the road
+  - Deals are made and family quarrels are aired here
+  - Old village stories are retold by the fire
+  - When people are worried the talk grows quiet and careful
 --- !u!1001 &2020270488
 PrefabInstance:
   m_ObjectHideFlags: 0

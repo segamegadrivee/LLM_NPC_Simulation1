@@ -102,49 +102,89 @@ MonoBehaviour:
     knownByNpcIds: []
     importance: 4
   - id: public_tavern_social_life
-    title: The tavern is where village talk gathers
-    text: The tavern is the heart of village talk. Rumors, traveler news, and the
-      village mood surface there first, especially now that people are uneasy about
-      the bell.
+    title: The tavern, the village's gathering place
+    text: The tavern is where the village comes together. Locals share gossip, travelers
+      bring road news, and merchants make deals, while families sometimes air their
+      quarrels. Old village stories are retold over drinks, and lately much of the
+      talk is uneasy about the missing bell.
     tags:
     - tavern
+    - social
     - rumors
-    - gossip
     - news
-    - worried
-    - bell
+    - travelers
+    - merchants
+    - stories
+    - gossip
     relatedObjectIds:
     - tavern
     knownByNpcIds: []
     importance: 4
   - id: public_church_symbolic_center
-    title: The church is the village's symbolic heart
-    text: The old stone church is where the village gathers and marks important moments.
-      Even people who rarely pray treat it as the steady center of village life.
+    title: The old church, built by the first settlers
+    text: The church is the village's oldest building, raised by the first settler
+      families as a place to gather. For generations it has marked weddings, namings,
+      and the turning seasons, and it is still the steady symbolic heart of the village.
+      Its bell later became the village's voice.
     tags:
     - church
-    - tradition
-    - sacred
-    - gathering
     - history
+    - founders
+    - tradition
+    - ceremonies
+    - gathering
+    - sacred
     relatedObjectIds:
     - church
     knownByNpcIds: []
-    importance: 3
+    importance: 4
   - id: public_forge_practical_center
-    title: The forge is where practical questions get answered
-    text: Borin's forge makes and mends tools, locks, hinges, and metal fittings.
-      When something needs weighing, checking, or proving, people look here rather
-      than to rumor.
+    title: The forge, where the village's ironwork is done
+    text: Borin's forge has kept the village working for generations, shoeing animals,
+      mending carts, and making locks, hinges, nails, and fittings. Soot and old repair
+      marks record years of everyday labor. When something must be weighed, checked,
+      or proven, people come here rather than to rumor.
     tags:
     - forge
     - blacksmith
     - metal
     - tools
     - repair
+    - locks
+    - carts
+    - labor
     - evidence
     relatedObjectIds:
     - blacksmith_area
+    knownByNpcIds: []
+    importance: 4
+  - id: public_village_history
+    title: The village and its founding families
+    text: The village was founded generations ago by a handful of settler families
+      who raised the church first, then built homes, the forge, and the tavern around
+      it. People still tell stories of those early families and the hard first years.
+    tags:
+    - village
+    - history
+    - founders
+    - settlers
+    - stories
+    - tradition
+    relatedObjectIds: []
+    knownByNpcIds: []
+    importance: 3
+  - id: public_how_news_and_trouble_spreads
+    title: How news and worry travel in the village
+    text: News spreads by word of mouth, reaching the tavern first, then the square
+      and the forge. When trouble comes, people look to Eldric to keep order and to
+      the church and Anselm for steadiness.
+    tags:
+    - news
+    - rumors
+    - trouble
+    - order
+    - village
+    relatedObjectIds: []
     knownByNpcIds: []
     importance: 3
   - id: mira_reads_people_in_tavern

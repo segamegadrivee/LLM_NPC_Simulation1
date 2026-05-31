@@ -1401,18 +1401,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76dca6ae07fce41cfae64c39441db151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerState
-  reputation: neutral
   currentRole: traveler
   equippedOutfit: normal
   visibleHeldItem: none
   visibleStatusTags: []
-  publicReputation: unknown
-  aggressionScore: 0
-  helpfulnessScore: 0
   heldItems: []
   completedActions: []
   knownFacts: []
-  reputationEvents: []
   debugLogs: 1
 --- !u!4 &512778276 stripped
 Transform:
@@ -1990,11 +1985,13 @@ MonoBehaviour:
   objectId: church
   displayName: Old Church
   objectType: Building
-  description: An old stone church that stands near the village square. It was built
-    before most of the current houses and is treated by villagers as a place of memory,
-    gathering, and protection. Its bell used to call people together during danger,
-    funerals, village meetings, and important announcements. Now the bell is missing,
-    and the silence of the church makes the village feel unsafe and uneasy.
+  description: An old stone church beside the village square and one of the first
+    buildings raised by the early settler families. For generations it has been a
+    place of memory, ceremonies, quiet promises, and seasonal gatherings. Villagers
+    came here for weddings, namings, farewells, and moments when the whole settlement
+    needed to stand together. Its bell once marked the rhythm of the day, called
+    people to gather, and warned of danger. Even without the bell, the church remains
+    the symbolic heart of the village and a reminder of its oldest traditions.
   tags:
   - church
   - bell
@@ -2003,12 +2000,14 @@ MonoBehaviour:
   - memory
   - village
   - symbol
+  - memory
+  - sacred
   stateFacts:
   - bellMissing = true
-  - caretaker = Anselm
-  - villageMoodAroundChurch = worried
-  - bellWasUsedForWarnings = true
-  - villagersRespectChurch = true
+  - Anselm is the caretaker of the church
+  - The church was raised by the first settler families
+  - Weddings, namings, farewells, and seasonal gatherings happen here
+  - The bell marked the day and warned of danger
 --- !u!4 &774014826 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 24e985cacb6294fa49df5992fde3449e, type: 3}
@@ -2378,15 +2377,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneContextObject
   objectId: blacksmith_area
   displayName: Blacksmith Area
-  objectType: 'WorkArea '
-  description: A place for metalwork, repairs, tools, and physical evidence.
+  objectType: 'Work Area '
+  description: Forge, the village's practical work center, where metal is shaped,
+    repaired, and judged by hand. Tools, locks, hinges, cart fittings, armor pieces,
+    blades, and sword parts are made or repaired here. The walls are dark with soot,
+    and the floor bears marks from years of work. People bring broken equipment,
+    damaged armor, and suspicious metal objects here when they need practical answers
+    instead of rumors.
   tags:
+  - forge
   - blacksmith
   - metal
   - tools
-  - evidence
+  - repair
+  - tools
+  - armor
+  - swords
+  - blades
   stateFacts:
-  - Borin can inspect metal traces
+  - Borin works at the forge and understands metalwork
+  - Armor, tools, locks, hinges, and blade parts can be repaired here
+  - The forge has served the village for generations
+  - Villagers bring broken equipment and damaged metal items here
+  - The forge is known as a place for practical work, not gossip
 --- !u!4 &1008104991 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4804194293512760, guid: 2db5cf884e24ae74ba5afa31151e2453, type: 3}
@@ -2814,6 +2827,7 @@ GameObject:
   - component: {fileID: 1091432771}
   - component: {fileID: 1091432770}
   - component: {fileID: 1091432772}
+  - component: {fileID: 1091432773}
   m_Layer: 0
   m_Name: GameSystems
   m_TagString: Untagged
@@ -2997,6 +3011,19 @@ MonoBehaviour:
   playerState: {fileID: 0}
   toggleKey: 105
   visible: 1
+--- !u!114 &1091432773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091432761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fbbd42b1cbb46369fbf4cfadf7f1201, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCConversationMemoryStore
+  maxMessagesPerNpc: 12
 --- !u!1001 &1112934255
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4907,14 +4934,28 @@ MonoBehaviour:
   objectId: tavern
   displayName: Village Tavern
   objectType: Building
-  description: ' A social place where villagers and travelers exchange rumors.'
+  description: The village tavern, a warm and busy room at the center of daily life.
+    Locals gather to drink and talk, travelers stop for food and news from the road,
+    and merchants meet to make deals. Families sometimes settle quarrels here, and
+    old village stories are retold by the fire. Mira keeps the place, notices who
+    is tense or hiding something, and hears most rumors first. When people are worried,
+    the talk here grows quieter and more careful.
   tags:
   - tavern
+  - social
   - rumors
-  - people
-  - stranger
+  - news
+  - 'travelers '
+  - merchants
+  - stories
+  - gathering
   stateFacts:
   - ' Mira saw a nervous stranger last night'
+  - Mira keeps the tavern and hears most news first
+  - Travelers bring news from the road
+  - Locals, travelers, and merchants gather here daily
+  - Old village stories are retold here
+  - Worried talk here grows quieter and more careful
 --- !u!1001 &2020270488
 PrefabInstance:
   m_ObjectHideFlags: 0
