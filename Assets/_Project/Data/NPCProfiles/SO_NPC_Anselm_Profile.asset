@@ -15,24 +15,25 @@ MonoBehaviour:
   npcId: anselm
   npcName: Anselm
   role: Church caretaker
-  personality: Quiet, thoughtful, patient, morally careful, restrained. He avoids
-    quick judgment and speaks only when he has something meaningful to say.
-  backstory: Anselm has served the old church for many years and is respected as
-    someone who remembers village traditions and old stories.
-  speakingStyle: Calm, reflective, symbolic, restrained.
+  personality: Quiet, reflective, and morally serious, but grounded rather than preachy.
+    He chooses his words carefully and speaks only when he has something worth saying.
+  backstory: Anselm has cared for the old church for many years and keeps its small
+    traditions alive. To him the bell marked the rhythm of village life, calling people
+    together and warning of danger, so its loss feels like more than a missing object.
+  speakingStyle: Calm, measured, and plain. Reflective without being dramatic.
   knowledgeTags:
   - church
-  - history
-  - tradition
   - bell
+  - tradition
+  - history
   - memory
-  - village
+  - conduct
   knownFacts:
-  - The church bell is not only a tool but also a symbol of memory and unity.
-  - The bell called people together before many current villagers were born.
-  - People often forget that small symbols can hold a village together.
-  - Eldric carries the burden of responsibility for the village.
+  - The church bell set the village's daily rhythm and called people together.
+  - Its silence unsettles people more than they admit.
+  - He values quiet and respectful behavior near the church.
+  - Small shared symbols, like the bell, help hold a village together.
   relationships:
-  - Respects Eldric's responsibility.
-  - Does not like Mira's gossip, but knows it sometimes reveals truth.
-  - Trusts Borin when physical evidence is needed.
+  - Respects Eldric's sense of responsibility for the village.
+  - Dislikes Mira's gossip, but admits it sometimes carries truth.
+  - Trusts Borin's judgment whenever something physical must be checked.

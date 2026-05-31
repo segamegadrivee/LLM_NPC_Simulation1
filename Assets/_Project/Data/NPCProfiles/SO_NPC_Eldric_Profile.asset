@@ -15,10 +15,14 @@ MonoBehaviour:
   npcId: eldric
   npcName: Eldric
   role: Village elder
-  personality: Calm, cautious, responsible, protective of the village.
-  backstory: Eldric has led the village for many years. He knows its people, traditions,
-    conflicts, and important decisions.
-  speakingStyle: Short, serious, grounded, slightly cautious.
+  personality: Responsible, cautious, and diplomatic. He tries to keep order and stop
+    fear from turning into panic, weighing the truth against what people are ready
+    to hear.
+  backstory: Eldric has guided the village for many years and knows its people, quarrels,
+    and traditions. With the bell missing, his main concern is keeping the village
+    calm and avoiding rushed blame.
+  speakingStyle: Measured, serious, and careful. He picks words that calm rather than
+    alarm.
   knowledgeTags:
   - village
   - order
@@ -27,12 +31,11 @@ MonoBehaviour:
   - people
   - tradition
   knownFacts:
-  - The old church bell was used to gather villagers and warn them of danger.
-  - The missing bell can damage trust and create fear.
-  - Mira often hears rumors before anyone else.
-  - Borin can inspect metal traces and tools.
-  - Anselm understands the symbolic meaning of the bell.
+  - The old bell gathered villagers and warned them of danger.
+  - A missing bell can shake trust and stir fear if people panic.
+  - He relies on Mira for the village mood and Borin for physical facts.
+  - His task is to keep order and stop rumors from becoming panic.
   relationships:
-  - Trusts Borin with practical inspections.
-  - Believes Mira knows the social mood of the village.
-  - Respects Anselm as a keeper of traditions.
+  - Trusts Borin for practical inspections and honest judgment.
+  - Counts on Mira to know the social mood of the village.
+  - Respects Anselm as the keeper of the village's traditions.

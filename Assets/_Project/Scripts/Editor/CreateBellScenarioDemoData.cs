@@ -20,23 +20,22 @@ public static class CreateBellScenarioDemoData
             "eldric",
             "Eldric",
             "Village elder",
-            "Calm, cautious, responsible, protective of the village.",
-            "Eldric has led the village for many years. He knows its people, traditions, conflicts, and important decisions.",
-            "Short, serious, grounded, slightly cautious.",
+            "Responsible, cautious, and diplomatic. He tries to keep order and stop fear from turning into panic, weighing the truth against what people are ready to hear.",
+            "Eldric has guided the village for many years and knows its people, quarrels, and traditions. With the bell missing, his main concern is keeping the village calm and avoiding rushed blame.",
+            "Measured, serious, and careful. He picks words that calm rather than alarm.",
             new List<string> { "village", "order", "leadership", "bell", "people", "tradition" },
             new List<string>
             {
-                "The old church bell was used to gather villagers and warn them of danger.",
-                "The missing bell can damage trust and create fear.",
-                "Mira often hears rumors before anyone else.",
-                "Borin can inspect metal traces and tools.",
-                "Anselm understands the symbolic meaning of the bell."
+                "The old bell gathered villagers and warned them of danger.",
+                "A missing bell can shake trust and stir fear if people panic.",
+                "He relies on Mira for the village mood and Borin for physical facts.",
+                "His task is to keep order and stop rumors from becoming panic."
             },
             new List<string>
             {
-                "Trusts Borin with practical inspections.",
-                "Believes Mira knows the social mood of the village.",
-                "Respects Anselm as a keeper of traditions."
+                "Trusts Borin for practical inspections and honest judgment.",
+                "Counts on Mira to know the social mood of the village.",
+                "Respects Anselm as the keeper of the village's traditions."
             });
 
         CreateProfileIfMissing(
@@ -44,22 +43,22 @@ public static class CreateBellScenarioDemoData
             "mira",
             "Mira",
             "Tavern keeper",
-            "Observant, lively, practical, socially sharp, slightly sarcastic.",
-            "Mira runs the tavern and hears most rumors from locals and travelers.",
-            "Direct, conversational, slightly witty.",
-            new List<string> { "tavern", "rumors", "travelers", "people", "stranger", "bell" },
+            "Observant, lively, and practical, with a sharp eye for people and a slightly sarcastic edge. She reads moods fast and rarely misses a nervous face or an out-of-place stranger.",
+            "Mira has run the village tavern for years. Locals drink and complain there, travelers pass through with news, and almost every rumor reaches her counter first. Since the church bell went missing she has heard plenty of worried talk.",
+            "Direct and conversational, often witty or teasing, never long-winded.",
+            new List<string> { "tavern", "rumors", "travelers", "people", "gossip", "bell", "appearance" },
             new List<string>
             {
-                "A nervous stranger was seen near the tavern recently.",
-                "People are worried but avoid speaking openly.",
-                "The tavern is where rumors spread quickly.",
-                "Eldric tries to keep panic away from the village."
+                "The tavern is where village rumors and traveler news gather first.",
+                "Since the bell went missing, people have been more anxious and tight-lipped.",
+                "A nervous stranger was seen near the tavern not long ago.",
+                "She notices clothing, nervousness, and who might be hiding something."
             },
             new List<string>
             {
-                "Often hears news before Eldric does.",
-                "Thinks Borin is honest but too blunt.",
-                "Knows Anselm avoids gossip but remembers old stories."
+                "Hears news before Eldric does and passes on what matters.",
+                "Likes Borin's honesty but finds him too blunt and deaf to gossip.",
+                "Respects Anselm's quiet wisdom, even though he dislikes her gossip."
             });
 
         CreateProfileIfMissing(
@@ -67,22 +66,22 @@ public static class CreateBellScenarioDemoData
             "borin",
             "Borin",
             "Blacksmith",
-            "Direct, practical, hardworking, skeptical of rumors.",
-            "Borin works with metal, tools, locks, bells, and repairs. He understands physical evidence better than gossip.",
-            "Blunt, short, practical.",
-            new List<string> { "blacksmith", "metal", "tools", "bell", "repair", "evidence" },
+            "Blunt, practical, and reliable. He has no patience for gossip and trusts what he can see, test, and repair. He judges people by their work and actions, not their clothes.",
+            "Borin runs the forge, making and mending tools, locks, hinges, and fittings, including past work on the church bell. He thinks in weight, metal, and evidence, which is why Eldric asks him to inspect anything physical.",
+            "Short, blunt, and matter-of-fact. He says what he knows and stops.",
+            new List<string> { "blacksmith", "forge", "metal", "tools", "repair", "evidence", "bell" },
             new List<string>
             {
-                "A church bell is heavy and difficult to move quietly.",
-                "Moving the bell would require tools, a cart, or more than one person.",
-                "Rumors are useless without evidence.",
-                "Eldric often asks Borin to verify physical objects."
+                "A church bell is heavy and hard to move quietly without tools or a cart.",
+                "Moving it would take more than one person, or the right equipment.",
+                "Rumors mean little to him without physical evidence.",
+                "Eldric often asks him to inspect tools, locks, and metal traces."
             },
             new List<string>
             {
-                "Respects Eldric but dislikes panic.",
-                "Does not fully trust tavern rumors.",
-                "Thinks Mira talks too much but sometimes hears useful things."
+                "Respects Eldric but has no patience for panic.",
+                "Does not trust tavern rumors, and thinks Mira talks too much.",
+                "Values Anselm's steadiness, even if he says little."
             });
 
         CreateProfileIfMissing(
@@ -90,22 +89,22 @@ public static class CreateBellScenarioDemoData
             "anselm",
             "Anselm",
             "Church caretaker",
-            "Quiet, thoughtful, patient, moral, careful with words.",
-            "Anselm takes care of the old church and remembers many stories, traditions, and symbolic meanings connected to the village.",
-            "Calm, reflective, symbolic, restrained.",
-            new List<string> { "church", "history", "tradition", "bell", "memory", "village" },
+            "Quiet, reflective, and morally serious, but grounded rather than preachy. He chooses his words carefully and speaks only when he has something worth saying.",
+            "Anselm has cared for the old church for many years and keeps its small traditions alive. To him the bell marked the rhythm of village life, calling people together and warning of danger, so its loss feels like more than a missing object.",
+            "Calm, measured, and plain. Reflective without being dramatic.",
+            new List<string> { "church", "bell", "tradition", "history", "memory", "conduct" },
             new List<string>
             {
-                "The church bell is not only a tool but also a symbol of memory and unity.",
-                "The bell called people together before many current villagers were born.",
-                "People often forget that small symbols can hold a village together.",
-                "Eldric carries the burden of responsibility for the village."
+                "The church bell set the village's daily rhythm and called people together.",
+                "Its silence unsettles people more than they admit.",
+                "He values quiet and respectful behavior near the church.",
+                "Small shared symbols, like the bell, help hold a village together."
             },
             new List<string>
             {
-                "Respects Eldric's responsibility.",
-                "Does not like Mira's gossip, but knows it sometimes reveals truth.",
-                "Trusts Borin when physical evidence is needed."
+                "Respects Eldric's sense of responsibility for the village.",
+                "Dislikes Mira's gossip, but admits it sometimes carries truth.",
+                "Trusts Borin's judgment whenever something physical must be checked."
             });
 
         CreateKnowledgeBaseIfMissing();
@@ -164,9 +163,9 @@ public static class CreateBellScenarioDemoData
             new KnowledgeEntry
             {
                 id = "public_guard_armor_signal",
-                title = "Guard armor as a social signal",
-                text = "Guard armor makes villagers more careful around the player. Some see it as protection and responsibility; others see it as pressure, authority, or possible intimidation.",
-                tags = new List<string> { "armor", "guard_armor", "armored", "authority_signal", "authority", "trust", "appearance" },
+                title = "Guard armor as a sign of authority",
+                text = "Guard armor marks the wearer as someone with authority. Villagers grow more careful and formal around them. Some feel protected, others feel pressured or watched.",
+                tags = new List<string> { "armor", "guard_armor", "armored", "authority_signal", "authority" },
                 relatedObjectIds = new List<string>(),
                 knownByNpcIds = new List<string>(),
                 importance = 5
@@ -174,9 +173,9 @@ public static class CreateBellScenarioDemoData
             new KnowledgeEntry
             {
                 id = "public_dark_cloak_signal",
-                title = "Dark cloak as a suspicious signal",
-                text = "A dark cloak makes the player look like someone trying not to be recognized. Villagers may become cautious, suspicious, or less willing to speak openly.",
-                tags = new List<string> { "dark_cloak", "cloak", "suspicious", "hidden_identity", "secrecy", "appearance", "trust" },
+                title = "A dark cloak as a sign of secrecy",
+                text = "A dark, concealing cloak makes the wearer look like someone who does not want to be recognized. Villagers become more guarded and less willing to speak openly.",
+                tags = new List<string> { "dark_cloak", "cloak", "hidden_identity", "secrecy", "suspicious" },
                 relatedObjectIds = new List<string>(),
                 knownByNpcIds = new List<string>(),
                 importance = 5
@@ -184,29 +183,19 @@ public static class CreateBellScenarioDemoData
             new KnowledgeEntry
             {
                 id = "public_visible_weapon_signal",
-                title = "Visible weapon as a threat signal",
-                text = "A visible weapon or dangerous object changes the tone of a conversation. Villagers may become cautious, defensive, or afraid when the player is visibly armed.",
-                tags = new List<string> { "weapon", "armed", "sword", "hammer", "danger", "threat", "appearance" },
+                title = "A visible weapon as a sign of danger",
+                text = "A weapon carried openly changes the mood of a conversation. People become wary or defensive when someone nearby is visibly armed.",
+                tags = new List<string> { "weapon", "armed", "sword", "hammer", "danger", "threat" },
                 relatedObjectIds = new List<string>(),
                 knownByNpcIds = new List<string>(),
-                importance = 4
-            },
-            new KnowledgeEntry
-            {
-                id = "public_aggressive_behavior_consequence",
-                title = "Aggressive behavior reduces trust",
-                text = "If the player acts aggressively toward someone, that target should become less trusting and more hostile. Other NPCs should not know about it unless the event is public or explicitly witnessed.",
-                tags = new List<string> { "aggression", "trust", "reputation", "angry", "hostile", "personal_event" },
-                relatedObjectIds = new List<string>(),
-                knownByNpcIds = new List<string>(),
-                importance = 5
+                importance = 3
             },
             new KnowledgeEntry
             {
                 id = "public_missing_bell_tension",
-                title = "The missing bell creates village tension",
-                text = "The old church bell is missing, and the village feels uneasy. The bell represented order, routine, and shared trust, so its absence makes people nervous.",
-                tags = new List<string> { "bell", "missing_bell", "church", "village", "tension", "worried" },
+                title = "The missing bell unsettles the village",
+                text = "The old church bell is missing and the village feels uneasy. The bell once set the daily rhythm, called people together, and warned of danger, so its silence makes people anxious and quick to worry.",
+                tags = new List<string> { "bell", "missing_bell", "church", "tension", "worried" },
                 relatedObjectIds = new List<string> { "church" },
                 knownByNpcIds = new List<string>(),
                 importance = 4
@@ -214,49 +203,69 @@ public static class CreateBellScenarioDemoData
             new KnowledgeEntry
             {
                 id = "public_bell_found_resolution",
-                title = "Finding the bell changes the village mood",
-                text = "If the missing bell is found, the village becomes calmer, but people still want to know why it was hidden and who moved it.",
-                tags = new List<string> { "bell_found", "found", "resolved", "calm", "village", "church" },
-                relatedObjectIds = new List<string> { "church", "old_storehouse" },
+                title = "Finding the bell calms the village",
+                text = "When the missing bell is found, relief spreads and the village grows calmer, though people still wonder why it was gone and who moved it. Talk of it being missing becomes old news.",
+                tags = new List<string> { "bell", "bell_found", "found", "resolved", "calm" },
+                relatedObjectIds = new List<string> { "church" },
                 knownByNpcIds = new List<string>(),
                 importance = 5
             },
             new KnowledgeEntry
             {
+                id = "public_tavern_social_life",
+                title = "The tavern is where village talk gathers",
+                text = "The tavern is the heart of village talk. Rumors, traveler news, and the village mood surface there first, especially now that people are uneasy about the bell.",
+                tags = new List<string> { "tavern", "rumors", "gossip", "news", "worried", "bell" },
+                relatedObjectIds = new List<string> { "tavern" },
+                knownByNpcIds = new List<string>(),
+                importance = 4
+            },
+            new KnowledgeEntry
+            {
                 id = "mira_reads_people_in_tavern",
-                title = "Mira reads people in the tavern",
-                text = "Mira pays close attention to how people dress, speak, and behave in the tavern. She notices uniforms, cloaks, nervousness, lies, and social tension quickly.",
-                tags = new List<string> { "mira", "tavern", "people", "social", "appearance", "armor", "cloak", "suspicious", "trust" },
+                title = "Mira reads the people she serves",
+                text = "Mira watches how people dress, speak, and carry themselves. She quickly notices uniforms, cloaks, nervousness, and who is hiding something, and she hears most rumors before anyone else.",
+                tags = new List<string> { "mira", "tavern", "people", "social", "rumors", "armor", "cloak" },
                 relatedObjectIds = new List<string> { "tavern" },
                 knownByNpcIds = new List<string> { "mira" },
                 importance = 5
             },
             new KnowledgeEntry
             {
-                id = "borin_judges_actions_not_clothes",
-                title = "Borin judges actions more than clothing",
-                text = "Borin does not trust uniforms, cloaks, or appearances by themselves. He cares more about what the player does, especially around tools, weapons, or violence.",
-                tags = new List<string> { "borin", "forge", "tools", "armor", "cloak", "weapon", "aggression", "trust", "actions" },
-                relatedObjectIds = new List<string> { "forge" },
+                id = "borin_judges_workmanship",
+                title = "Borin trusts work, not appearances",
+                text = "Borin is not impressed by armor or cloaks. He judges people by what they do and how they handle tools and metal. He also knows the bell is heavy and would take real effort and equipment to move.",
+                tags = new List<string> { "borin", "forge", "blacksmith", "tools", "metal", "bell", "armor", "cloak" },
+                relatedObjectIds = new List<string> { "blacksmith_area" },
                 knownByNpcIds = new List<string> { "borin" },
                 importance = 5
             },
             new KnowledgeEntry
             {
                 id = "eldric_connects_armor_with_responsibility",
-                title = "Eldric connects armor with responsibility",
-                text = "Eldric sees guard armor as a sign of responsibility. If the player wears it, he expects discipline, restraint, and protection of the village.",
-                tags = new List<string> { "eldric", "authority", "order", "guard_armor", "armor", "responsibility", "village" },
-                relatedObjectIds = new List<string> { "village_square", "church" },
+                title = "Eldric expects responsibility from armor",
+                text = "Eldric reads guard armor as a claim of authority and duty. If the player wears it, he expects discipline and restraint, and quietly hopes such a person will help keep the village calm.",
+                tags = new List<string> { "eldric", "guard_armor", "armor", "authority", "responsibility", "order" },
+                relatedObjectIds = new List<string>(),
                 knownByNpcIds = new List<string> { "eldric" },
-                importance = 5
+                importance = 4
             },
             new KnowledgeEntry
             {
-                id = "anselm_cares_about_conduct_near_church",
-                title = "Anselm cares about conduct near the church",
-                text = "Anselm is sensitive to behavior near the church. Weapons, aggression, and suspicious conduct feel especially wrong near sacred or quiet places.",
-                tags = new List<string> { "anselm", "church", "sacred", "conduct", "aggression", "weapon", "cloak", "bell" },
+                id = "eldric_keeps_order_avoids_panic",
+                title = "Eldric tries to keep the village calm",
+                text = "Eldric's main worry is panic. He speaks carefully about the missing bell, balancing honesty with the need to keep people calm, and he discourages blame before there is proof.",
+                tags = new List<string> { "eldric", "order", "leadership", "village", "bell", "worried", "panic" },
+                relatedObjectIds = new List<string>(),
+                knownByNpcIds = new List<string> { "eldric" },
+                importance = 4
+            },
+            new KnowledgeEntry
+            {
+                id = "anselm_bell_meaning_and_conduct",
+                title = "To Anselm the bell means shared rhythm",
+                text = "For Anselm the church bell was never just metal. It marked the village's daily rhythm, called people together, and stood for shared trust, so its loss weighs on him. He also values quiet, respectful behavior near the church.",
+                tags = new List<string> { "anselm", "church", "bell", "tradition", "memory", "conduct", "respect" },
                 relatedObjectIds = new List<string> { "church" },
                 knownByNpcIds = new List<string> { "anselm" },
                 importance = 5

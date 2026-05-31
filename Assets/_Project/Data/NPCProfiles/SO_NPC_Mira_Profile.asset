@@ -15,22 +15,27 @@ MonoBehaviour:
   npcId: mira
   npcName: Mira
   role: Tavern keeper
-  personality: Observant, lively, practical, socially sharp, slightly sarcastic.
-  backstory: Mira runs the tavern and hears most rumors from locals and travelers.
-  speakingStyle: Direct, conversational, slightly witty.
+  personality: Observant, lively, and practical, with a sharp eye for people and a
+    slightly sarcastic edge. She reads moods fast and rarely misses a nervous face
+    or an out-of-place stranger.
+  backstory: Mira has run the village tavern for years. Locals drink and complain
+    there, travelers pass through with news, and almost every rumor reaches her counter
+    first. Since the church bell went missing she has heard plenty of worried talk.
+  speakingStyle: Direct and conversational, often witty or teasing, never long-winded.
   knowledgeTags:
   - tavern
   - rumors
   - travelers
   - people
-  - stranger
+  - gossip
   - bell
+  - appearance
   knownFacts:
-  - A nervous stranger was seen near the tavern recently.
-  - People are worried but avoid speaking openly.
-  - The tavern is where rumors spread quickly.
-  - Eldric tries to keep panic away from the village.
+  - The tavern is where village rumors and traveler news gather first.
+  - Since the bell went missing, people have been more anxious and tight-lipped.
+  - A nervous stranger was seen near the tavern not long ago.
+  - She notices clothing, nervousness, and who might be hiding something.
   relationships:
-  - Often hears news before Eldric does.
-  - Thinks Borin is honest but too blunt.
-  - Knows Anselm avoids gossip but remembers old stories.
+  - Hears news before Eldric does and passes on what matters.
+  - Likes Borin's honesty but finds him too blunt and deaf to gossip.
+  - Respects Anselm's quiet wisdom, even though he dislikes her gossip.

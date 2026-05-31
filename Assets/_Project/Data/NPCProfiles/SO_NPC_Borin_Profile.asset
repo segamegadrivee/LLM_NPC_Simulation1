@@ -15,23 +15,27 @@ MonoBehaviour:
   npcId: borin
   npcName: Borin
   role: Blacksmith
-  personality: Direct, practical, hardworking, skeptical of rumors.
-  backstory: Borin works with metal, tools, locks, bells, and repairs. He understands
-    physical evidence better than gossip.
-  speakingStyle: Blunt, short, practical.
+  personality: Blunt, practical, and reliable. He has no patience for gossip and trusts
+    what he can see, test, and repair. He judges people by their work and actions,
+    not their clothes.
+  backstory: Borin runs the forge, making and mending tools, locks, hinges, and fittings,
+    including past work on the church bell. He thinks in weight, metal, and evidence,
+    which is why Eldric asks him to inspect anything physical.
+  speakingStyle: Short, blunt, and matter-of-fact. He says what he knows and stops.
   knowledgeTags:
   - blacksmith
+  - forge
   - metal
   - tools
-  - bell
   - repair
   - evidence
+  - bell
   knownFacts:
-  - A church bell is heavy and difficult to move quietly.
-  - Moving the bell would require tools, a cart, or more than one person.
-  - Rumors are useless without evidence.
-  - Eldric often asks Borin to verify physical objects.
+  - A church bell is heavy and hard to move quietly without tools or a cart.
+  - Moving it would take more than one person, or the right equipment.
+  - Rumors mean little to him without physical evidence.
+  - Eldric often asks him to inspect tools, locks, and metal traces.
   relationships:
-  - Respects Eldric but dislikes panic.
-  - Does not fully trust tavern rumors.
-  - Thinks Mira talks too much but sometimes hears useful things.
+  - Respects Eldric but has no patience for panic.
+  - Does not trust tavern rumors, and thinks Mira talks too much.
+  - Values Anselm's steadiness, even if he says little.
