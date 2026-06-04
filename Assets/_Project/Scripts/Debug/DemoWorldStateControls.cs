@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
-// Read-only runtime "World Status" panel for the demo.
+// Read-only runtime "World Status" panel.
 //
 // This was previously a dev cheat panel with "Set mood / Toggle bell / Add fact" buttons. Those
 // mutating controls were removed: this panel now only DISPLAYS the current world state and the latest

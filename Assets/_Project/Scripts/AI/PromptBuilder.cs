@@ -3,9 +3,9 @@ using System.Text;
 
 // Builds the LLM prompt from a ContextSnapshot.
 //
-// Design goals (diploma MVP):
+// Design goals:
 // - Context-driven, not scenario-driven. The prompt carries general roleplay/safety rules plus the
-//   structured context for THIS NPC. It deliberately avoids hardcoded per-NPC scripts and canned
+//   structured context for THIS NPC. It deliberately avoids per-NPC scripts and canned
 //   example answers, so behaviour emerges from the NPC profile + retrieved context rather than from
 //   author-written replies.
 // - Honest about provenance. Visible player state, public world state/events, nearby scene context,

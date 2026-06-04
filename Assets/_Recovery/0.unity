@@ -621,8 +621,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 275622251}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 5.923}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -3.94214, y: -0.18617, z: 8.72244}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -633,7 +633,7 @@ Transform:
   - {fileID: 736321357}
   - {fileID: 774851465}
   - {fileID: 1035320878}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1014816266}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &277340275
 PrefabInstance:
@@ -2448,6 +2448,7 @@ Transform:
   - {fileID: 1803396453}
   - {fileID: 242538762}
   - {fileID: 1162642495}
+  - {fileID: 275622254}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1035320877
@@ -2819,7 +2820,6 @@ GameObject:
   - component: {fileID: 1091432768}
   - component: {fileID: 1091432767}
   - component: {fileID: 1091432766}
-  - component: {fileID: 1091432765}
   - component: {fileID: 1091432764}
   - component: {fileID: 1091432763}
   - component: {fileID: 1091432762}
@@ -2828,6 +2828,7 @@ GameObject:
   - component: {fileID: 1091432770}
   - component: {fileID: 1091432772}
   - component: {fileID: 1091432773}
+  - component: {fileID: 1091432765}
   m_Layer: 0
   m_Name: GameSystems
   m_TagString: Untagged
@@ -5329,4 +5330,3 @@ SceneRoots:
   - {fileID: 1091432768}
   - {fileID: 1014816266}
   - {fileID: 1670089131}
-  - {fileID: 275622254}

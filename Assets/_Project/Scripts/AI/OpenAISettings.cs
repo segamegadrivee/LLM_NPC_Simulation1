@@ -4,7 +4,7 @@ using UnityEngine;
 
 // Settings for the OpenAI-backed NPC dialogue client.
 //
-// Recommended local prototype setup:
+// Recommended local setup:
 // Option A: set the OPENAI_API_KEY environment variable.
 // Option B: create Assets/_Project/LocalSecrets/openai_key.txt and paste only the API key inside.
 //
@@ -13,9 +13,7 @@ using UnityEngine;
 // Authorization header. InspectorUnsafe is only for quick local experiments.
 //
 // Model configuration:
-// The default model is gpt-5.4-mini because this prototype needs fast, cost-efficient,
-// context-aware NPC dialogue. The model name is configurable so diploma experiments can
-// later compare gpt-5.4-mini, gpt-5.4, gpt-5.5, gpt-4.1-mini, or other models without code changes.
+// The model name is configurable so different models can be compared without code changes.
 [CreateAssetMenu(fileName = "SO_OpenAI_Settings", menuName = "AI NPC/OpenAI Settings")]
 public class OpenAISettings : ScriptableObject
 {

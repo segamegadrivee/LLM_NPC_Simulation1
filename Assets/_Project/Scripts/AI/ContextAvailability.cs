@@ -1,17 +1,9 @@
 using System.Collections.Generic;
 
 // Context Availability Layer.
-//
-// This is the core architectural idea of the MVP: every piece of context that could be shown to an
-// NPC is wrapped in a ContextEntry that records WHERE it came from (sourceType), HOW visible it is
-// to the NPC (visibility), and WHETHER it was finally included in the prompt (includedInPrompt /
-// exclusionReason). This makes the retrieval decision explainable in the debug overlay and in the
-// diploma text: we can show, for a specific NPC, why each fact was included or excluded.
-//
-// Important privacy rule enforced by ContextRetriever:
-// Private player discoveries (PlayerState.knownFacts) are NOT automatically NPC knowledge. They are
-// recorded here as PrivateToPlayer and excluded from the NPC-owned context unless the player states
-// them in dialogue (PlayerClaim) or an actual public event occurs (PublicWorldEvent).
+// Each context item records its source, visibility, and inclusion decision.
+// Private player discoveries are not treated as NPC knowledge unless the player states them
+// in dialogue or they become public world state/events.
 
 public enum ContextSourceType
 {

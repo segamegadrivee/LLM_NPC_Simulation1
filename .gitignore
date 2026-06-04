@@ -110,3 +110,6 @@ InitTestScene*.unity*
 Assets/_Project/LocalSecrets/
 *.openai_key
 openai_key.txt
+
+# macOS metadata
+.DS_Store

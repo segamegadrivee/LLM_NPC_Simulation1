@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
-// Runtime-only IMGUI overlay for diploma/debug explanation of the NPC context pipeline.
+// Runtime-only IMGUI overlay for inspecting the NPC context pipeline.
 public class ContextDebugOverlay : MonoBehaviour
 {
     private const string CompleteMarker = "[\u2713]";

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// Simple OnGUI chat for the prototype. Add it to GameSystems; no Canvas setup is required yet.
+// Simple OnGUI chat. Add it to GameSystems; no Canvas setup is required.
 public class RuntimeChatUI : MonoBehaviour
 {
     private const string ChatInputControlName = "ChatInputField";
@@ -188,7 +188,7 @@ public class RuntimeChatUI : MonoBehaviour
 
         GUILayout.EndHorizontal();
 
-        // Heavy diagnostic tools are DEV-ONLY. They stay out of the normal MVP chat UI and only
+        // Heavy diagnostic tools stay out of the normal chat UI and only
         // appear when showDebugControls is enabled in the inspector.
         if (showDebugControls)
         {
@@ -270,7 +270,7 @@ public class RuntimeChatUI : MonoBehaviour
 
     private float GetButtonRowsHeight()
     {
-        // Always: the Close/Print/Copy/Show-Prompt row. DEV-only: the dump/trace and clear-memory rows.
+        // Always: the Close/Print/Copy/Show-Prompt row. Diagnostics: the dump/trace and clear-memory rows.
         return PromptButtonRowHeight + (showDebugControls ? EvidenceButtonRowHeight + DebugButtonRowHeight : 0f);
     }
 
@@ -278,8 +278,8 @@ public class RuntimeChatUI : MonoBehaviour
     {
         string intended = string.IsNullOrEmpty(dialogueManager.CurrentLLMName) ? "None" : dialogueManager.CurrentLLMName;
 
-        // If a response actually came back from a different provider than intended (e.g. a DEV mock
-        // fallback after an OpenAI failure), surface that so the demo never misreports its source.
+        // If a response actually came back from a different provider than intended (e.g. a mock
+        // fallback after an OpenAI failure), surface that so the UI never misreports its source.
         if (dialogueManager.LastLLMResponseReceived)
         {
             string actual = dialogueManager.LastActualLLMProvider;

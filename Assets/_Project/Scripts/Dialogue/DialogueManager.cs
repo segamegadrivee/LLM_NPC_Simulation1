@@ -335,14 +335,14 @@ public class DialogueManager : MonoBehaviour
 
     private void ResolveLLMClient()
     {
-        // OpenAI is the only supported MVP runtime path. The Mock client is DEV-ONLY and becomes the
-        // active client solely when no OpenAIClient is assigned, with a clearly distinct provider
-        // label so the UI never presents scripted text as a real OpenAI answer.
+        // OpenAI is the primary runtime path. The mock client is used only when no OpenAIClient is
+        // assigned, with a distinct provider label so the UI never presents scripted text as a real
+        // OpenAI answer.
         if (openAIClient != null)
         {
             if (!useOpenAI)
             {
-                Debug.LogWarning("DialogueManager.useOpenAI is off, but OpenAI is the MVP runtime path. " +
+                Debug.LogWarning("DialogueManager.useOpenAI is off, but OpenAI is the primary runtime path. " +
                     "Using OpenAIClient anyway. Enable useOpenAI to remove this warning.", this);
             }
 
@@ -354,9 +354,8 @@ public class DialogueManager : MonoBehaviour
         if (fallbackMockLLMClient != null)
         {
             llmClient = fallbackMockLLMClient;
-            CurrentLLMName = "Mock (DEV)";
-            Debug.LogWarning("DialogueManager has no OpenAIClient assigned and is using the DEV MockLLMClient. " +
-                "Assign an OpenAIClient for the diploma demo.", this);
+            CurrentLLMName = "Mock";
+            Debug.LogWarning("DialogueManager has no OpenAIClient assigned and is using MockLLMClient.", this);
             return;
         }
 

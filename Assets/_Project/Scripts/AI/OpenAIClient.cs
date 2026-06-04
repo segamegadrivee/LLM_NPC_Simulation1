@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 // OpenAI-backed LLM client for NPC dialogue.
 //
-// Recommended local prototype setup:
+// Recommended local setup:
 // Option A: set the OPENAI_API_KEY environment variable.
 // Option B: create Assets/_Project/LocalSecrets/openai_key.txt and paste only the API key inside.
 //
@@ -14,17 +14,15 @@ using UnityEngine.Networking;
 // logs the Authorization header or API key.
 //
 // Model configuration:
-// The default model comes from OpenAISettings and is gpt-5.4-mini for low-latency,
-// cost-efficient, context-aware NPC dialogue. Change the ScriptableObject later to compare
-// different models for diploma experiments.
+// The default model comes from OpenAISettings. Change the ScriptableObject to compare
+// different models without code changes.
 public class OpenAIClient : MonoBehaviour, ILLMClient
 {
     private const string ResponsesEndpoint = "https://api.openai.com/v1/responses";
 
     public OpenAISettings settings;
 
-    [Tooltip("DEV ONLY. When false (the MVP default), an OpenAI failure shows a clear error in the " +
-        "chat/log instead of silently returning scripted MockLLMClient text. Leave OFF for the diploma demo.")]
+    [Tooltip("When false, an OpenAI failure shows a clear error in the chat/log instead of returning fallback text.")]
     public bool useMockOnFailure = false;
     public MockLLMClient fallbackMockClient;
     public string LastActualProvider { get; private set; } = "None";
@@ -127,7 +125,7 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
 
     private string BuildRequestPayload(string prompt)
     {
-        // Keep this builder small and explicit so future diploma work can add reasoning settings,
+        // Keep this builder small and explicit so future work can add reasoning settings,
         // tool definitions, structured outputs, or action-generation schemas in one place.
         string model = settings != null && !string.IsNullOrWhiteSpace(settings.model)
             ? settings.model.Trim()
@@ -316,10 +314,9 @@ public class OpenAIClient : MonoBehaviour, ILLMClient
             LastOpenAIRequestSucceeded = false;
             LastMockFallbackUsed = true;
 
-            // DEV-ONLY path. This is not the MVP behaviour; the provider is labelled "Mock (fallback)"
+            // Optional fallback path. The provider is labelled "Mock (fallback)"
             // so the UI/debug overlay never silently passes scripted text off as a real OpenAI answer.
-            Debug.LogWarning(message + " DEV fallback: returning scripted MockLLMClient text. " +
-                "Disable useMockOnFailure for the diploma demo.", this);
+            Debug.LogWarning(message + " Fallback: returning scripted MockLLMClient text.", this);
 
             fallbackMockClient.SendPrompt(prompt, onResponse);
             return;

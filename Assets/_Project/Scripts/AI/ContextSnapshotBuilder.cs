@@ -93,8 +93,7 @@ public static class ContextSnapshotBuilder
 
     // Builds the Context Availability Layer: a flat, explainable list of every considered piece of
     // context with its source, visibility, and inclusion decision. This does not change what the
-    // PromptBuilder receives (it still reads the typed snapshot fields); it records WHY each piece
-    // is allowed or excluded for the active NPC so the debug overlay and diploma can explain it.
+    // PromptBuilder receives; it records why each piece is allowed or excluded for the active NPC.
     public static void BuildAvailabilityEntries(ContextSnapshot snapshot)
     {
         List<ContextEntry> entries = new List<ContextEntry>();

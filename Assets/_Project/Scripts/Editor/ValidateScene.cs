@@ -3,12 +3,12 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-// Report-only validator for the final MVP scene. It never modifies the scene; it only checks that
-// the core pipeline objects are present and configured for the diploma demo, and prints a summary.
+// Report-only validator for the scene. It never modifies the scene; it only checks that
+// the core pipeline objects are present and configured, and prints a summary.
 
-public static class ValidateMvpScene
+public static class ValidateScene
 {
-    [MenuItem("Tools/AI NPC/Validate MVP Scene")]
+    [MenuItem("Tools/AI NPC/Validate Scene")]
     public static void Validate()
     {
         List<string> errors = new List<string>();
@@ -32,16 +32,15 @@ public static class ValidateMvpScene
         RequireAtLeastOne<NPCInteraction>("NPCInteraction", errors, ok);
         RequireAtLeastOne<SceneContextObject>("SceneContextObject", errors, ok);
 
-        // Optional demo content.
-        ReportOptional<OutfitInteractable>("OutfitInteractable (visible appearance demo)", ok);
-        ReportOptional<BellFoundInteractable>("BellFoundInteractable (public bell-found event demo)", ok);
+        ReportOptional<OutfitInteractable>("OutfitInteractable (visible appearance)", ok);
+        ReportOptional<BellFoundInteractable>("BellFoundInteractable (public bell-found event)", ok);
 
         // Configuration checks.
         if (dialogueManager != null)
         {
             if (!dialogueManager.DebugUseOpenAI)
             {
-                warnings.Add("DialogueManager.useOpenAI is OFF. OpenAI is the MVP runtime path; enable it.");
+                warnings.Add("DialogueManager.useOpenAI is OFF. OpenAI is the primary runtime path; enable it.");
             }
 
             if (dialogueManager.DebugOpenAIClient == null)
@@ -59,7 +58,7 @@ public static class ValidateMvpScene
 
             if (openAIClient.useMockOnFailure)
             {
-                warnings.Add("OpenAIClient.useMockOnFailure is ON. For the diploma demo turn it OFF so OpenAI " +
+                warnings.Add("OpenAIClient.useMockOnFailure is ON. Turn it OFF so OpenAI " +
                     "failures show a clear error instead of silently returning scripted Mock text.");
             }
         }
@@ -139,7 +138,7 @@ public static class ValidateMvpScene
     private static void PrintReport(List<string> errors, List<string> warnings, List<string> ok)
     {
         StringBuilder builder = new StringBuilder();
-        builder.AppendLine("===== MVP Scene Validation =====");
+        builder.AppendLine("===== Scene Validation =====");
 
         builder.AppendLine();
         builder.AppendLine("Present / OK (" + ok.Count + "):");

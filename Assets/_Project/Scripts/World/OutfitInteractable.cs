@@ -4,7 +4,7 @@ using UnityEngine;
 // Updates the player's visible outfit so NPCs can react to appearance. State-only; no dialogue.
 // All outfit replacement/exclusivity lives in PlayerState; this only resolves and forwards the data.
 //
-// Safety: there is NO hardcoded "guard" default here. Role/tags come from the inspector, and when
+// Safety: there is no fixed "guard" default here. Role/tags come from the inspector, and when
 // left empty are derived from outfitId. A cloak can never present as a guard or carry armor tags
 // (it is corrected at runtime with a warning), so a mis-configured CloakStand is never misleading.
 public class OutfitInteractable : BaseInteractable

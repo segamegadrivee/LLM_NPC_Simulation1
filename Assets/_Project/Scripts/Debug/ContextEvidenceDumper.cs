@@ -598,7 +598,7 @@ public static class ContextEvidenceDumper
         builder.AppendLine();
 
         builder.AppendLine("Hardcoded/static values:");
-        builder.AppendLine("- PromptBuilder roleplay rules and safety/voice rules are hardcoded/static prompt text.");
+        builder.AppendLine("- PromptBuilder roleplay rules and safety/voice rules are static prompt text.");
         builder.AppendLine("- NPCProfile values are manually authored ScriptableObject inspector values.");
         builder.AppendLine("- KnowledgeBase entries are manually authored ScriptableObject inspector values.");
         builder.AppendLine("- SceneContextObject descriptions/tags/stateFacts are manually authored scene inspector values.");

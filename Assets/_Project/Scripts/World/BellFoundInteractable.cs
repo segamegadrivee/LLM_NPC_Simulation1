@@ -1,14 +1,13 @@
 using UnityEngine;
 
-// Minimal PUBLIC "bell found" world event for the MVP demo.
+// Public "bell found" world event.
 //
 // Reuses the existing systems (BaseInteractable for player/range/key + WorldEventLog/scene helpers,
 // and the existing WorldState/WorldEvent/WorldEventLog). It does NOT create a parallel world-state
 // system. Triggers once: flips the global WorldState to "found", logs a public/global WorldEvent that
 // every NPC can see, optionally records a private player fact, and hides the bell prop.
 //
-// A single dedicated script keeps this demo clean: no bell_fragment held item, inspector-friendly
-// fields, and visual disabling. This is the current/only bell-found mechanic for the MVP.
+// A single dedicated script keeps this interaction self-contained.
 public class BellFoundInteractable : BaseInteractable
 {
     public string eventId = "bell_found_publicly";
