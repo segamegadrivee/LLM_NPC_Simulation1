@@ -28,6 +28,12 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
+			if (RuntimeCursorLockGuard.ShouldReleaseCursorForRuntimeUi())
+			{
+				LookInput(Vector2.zero);
+				return;
+			}
+
 			if(cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
@@ -68,6 +74,17 @@ namespace StarterAssets
 		
 		private void OnApplicationFocus(bool hasFocus)
 		{
+			if (!hasFocus)
+			{
+				return;
+			}
+
+			if (RuntimeCursorLockGuard.ShouldReleaseCursorForRuntimeUi())
+			{
+				RuntimeCursorLockGuard.ReleaseCursorForRuntimeUi();
+				return;
+			}
+
 			SetCursorState(cursorLocked);
 		}
 

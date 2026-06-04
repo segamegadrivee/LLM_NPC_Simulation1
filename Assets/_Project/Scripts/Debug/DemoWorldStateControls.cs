@@ -1,4 +1,7 @@
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 // Read-only runtime "World Status" panel for the demo.
 //
@@ -25,10 +28,29 @@ public class DemoWorldStateControls : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(toggleKey))
+        if (WasToggleKeyPressed())
         {
             visible = !visible;
         }
+    }
+
+    private bool WasToggleKeyPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current == null)
+        {
+            return false;
+        }
+
+        if (toggleKey == KeyCode.F2)
+        {
+            return Keyboard.current.f2Key.wasPressedThisFrame;
+        }
+
+        return false;
+#else
+        return Input.GetKeyDown(toggleKey);
+#endif
     }
 
     private void OnGUI()

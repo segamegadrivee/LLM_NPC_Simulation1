@@ -517,8 +517,7 @@ public class DialogueManager : MonoBehaviour
         EnableIfDisabledByDialogue(disabledFirstPersonController);
         disabledFirstPersonController = null;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        RuntimeCursorLockGuard.RestoreGameplayCursorIfNoRuntimeUi();
     }
 
     private GameObject FindPlayer()

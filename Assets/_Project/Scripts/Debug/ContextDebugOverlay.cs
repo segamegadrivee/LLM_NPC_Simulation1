@@ -17,7 +17,7 @@ public class ContextDebugOverlay : MonoBehaviour
     public static ContextDebugOverlay Instance { get; private set; }
 
     [SerializeField] private bool visible;
-    [SerializeField] private KeyCode toggleKey = KeyCode.F2;
+    [SerializeField] private KeyCode toggleKey = KeyCode.F3;
 
     private Vector2 mainScrollPosition;
     private Vector2 promptScrollPosition;
@@ -75,15 +75,29 @@ public class ContextDebugOverlay : MonoBehaviour
         EnsureInstance().ToggleVisible();
     }
 
+    public bool IsVisible
+    {
+        get { return visible; }
+    }
+
     public void ToggleVisible()
     {
-        visible = !visible;
+        SetVisible(!visible);
+    }
+
+    private void SetVisible(bool newVisible)
+    {
+        visible = newVisible;
 
         if (visible)
         {
+            RuntimeCursorLockGuard.ReleaseCursorForRuntimeUi();
             mainScrollPosition = Vector2.zero;
             RefreshRetrievalDebugCache(DialogueManager.Instance, GetDisplayedSnapshot(DialogueManager.Instance));
+            return;
         }
+
+        RuntimeCursorLockGuard.RestoreGameplayCursorIfNoRuntimeUi();
     }
 
     private void Awake()
@@ -95,6 +109,7 @@ public class ContextDebugOverlay : MonoBehaviour
         }
 
         Instance = this;
+        ReserveF2ForWorldStatus();
     }
 
     private void Update()
@@ -103,15 +118,38 @@ public class ContextDebugOverlay : MonoBehaviour
         {
             ToggleVisible();
         }
+
+        if (visible)
+        {
+            RuntimeCursorLockGuard.ReleaseCursorForRuntimeUi();
+        }
     }
 
     private bool WasToggleKeyPressed()
     {
+        ReserveF2ForWorldStatus();
+
 #if ENABLE_INPUT_SYSTEM
-        return toggleKey == KeyCode.F2 && Keyboard.current != null && Keyboard.current.f2Key.wasPressedThisFrame;
+        if (Keyboard.current != null)
+        {
+            if (toggleKey == KeyCode.F3)
+            {
+                return Keyboard.current.f3Key.wasPressedThisFrame;
+            }
+        }
+
+        return false;
 #else
         return Input.GetKeyDown(toggleKey);
 #endif
+    }
+
+    private void ReserveF2ForWorldStatus()
+    {
+        if (toggleKey == KeyCode.F2)
+        {
+            toggleKey = KeyCode.F3;
+        }
     }
 
     private void OnGUI()
@@ -175,7 +213,7 @@ public class ContextDebugOverlay : MonoBehaviour
 
         if (GUILayout.Button("Close", GUILayout.Width(70f), GUILayout.Height(24f)))
         {
-            visible = false;
+            SetVisible(false);
         }
 
         GUILayout.EndHorizontal();

@@ -5,8 +5,7 @@ using UnityEngine;
 
 // Report-only validator for the final MVP scene. It never modifies the scene; it only checks that
 // the core pipeline objects are present and configured for the diploma demo, and prints a summary.
-//
-// Run via: Tools > AI NPC > Validate MVP Scene.
+
 public static class ValidateMvpScene
 {
     [MenuItem("Tools/AI NPC/Validate MVP Scene")]
